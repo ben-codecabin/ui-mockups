@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIM-PRO Interface - Appraisal Methodology</title>
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* ------------------------------------------
+       Base styles (from saas2-blue-accent.html)
+    ------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f3f4f6;
+      color: #111827;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ------------------------------------------
+       Main (Left) Sidebar
+    ------------------------------------------- */
+    .main-sidebar {
+      width: 240px;
+      background-color: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+    }
+    .logo-container {
+      padding: 20px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background-color: #3b82f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 12px;
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 18px;
+      color: #111827;
+    }
+    .main-menu {
+      flex: 1;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #4b5563;
+      font-size: 14px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .menu-item:hover {
+      background-color: #f0f2f5;
+    }
+    .menu-item.active {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    .menu-item i {
+      margin-right: 12px;
+      width: 18px;
+      text-align: center;
+    }
+    .user-profile {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    .user-info {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #111827;
+    }
+    .user-role {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ------------------------------------------
+       Main Content Area (Right)
+    ------------------------------------------- */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ------------------------------------------
+       Top header bar (breadcrumb + actions)
+    ------------------------------------------- */
+    .top-header {
+      background-color: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+    .breadcrumb-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+    }
+    .breadcrumb {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .breadcrumb a {
+      color: #3b82f6;
+      text-decoration: underline;
+      margin-right: 4px;
+    }
+    .breadcrumb span {
+      margin-right: 4px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      outline: none;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #3b82f6;
+    }
+    input:focus + .slider {
+      box-shadow: 0 0 1px #3b82f6;
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* ------------------------------------------
+       Layout for secondary sidebar + content
+    ------------------------------------------- */
+    .body-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    .secondary-sidebar {
+      width: 220px;
+      background-color: #f8f9fa;
+      border-right: 1px solid #e5e7eb;
+      box-shadow: 1px 0 2px rgba(0, 0, 0, 0.03);
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .secondary-menu {
+      padding: 0;
+    }
+    .business-name-header {
+      padding: 16px;
+      font-weight: 600;
+      font-size: 16px;
+      color: #111827;
+      border-bottom: 1px solid #e5e7eb;
+      background-color: #f3f4f6;
+    }
+    .secondary-menu-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #4b5563;
+      border-bottom: 1px solid #edf2f7;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .secondary-menu-item:hover {
+      background-color: #f0f2f5;
+    }
+    .secondary-menu-item.active {
+      color: #3b82f6;
+      border-left: 4px solid #3b82f6;
+      background-color: rgba(59, 130, 246, 0.05);
+      padding-left: 12px;
+      font-weight: 500;
+    }
+
+    /* ------------------------------------------
+       Main scrolling content area
+    ------------------------------------------- */
+    .content-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 24px;
+    }
+    .card-body {
+      padding: 24px;
+    }
+
+    /* “Select” / “Selected” toggle button for methods */
+    .btn-select {
+      background-color: #fff;
+      color: #3b82f6;
+      border: 2px solid #3b82f6;
+    }
+    .btn-select:hover {
+      background-color: #3b82f6;
+      color: #fff;
+    }
+    .btn-select.selected {
+      background-color: #3b82f6;
+      color: #fff;
+    }
+
+    /* Method items styling */
+    .method-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .method-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #f3f4f6;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .method-info h4 {
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #111827;
+    }
+    .method-info p {
+      font-size: 14px;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Main (Left) Sidebar -->
+    <div class="main-sidebar">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="logo-text">CIM-PRO</div>
+      </div>
+      <div class="main-menu">
+        <div class="menu-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </div>
+        <div class="menu-item active">
+          <i class="fas fa-briefcase"></i>
+          Businesses
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-users"></i>
+          Users
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Templates
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-book"></i>
+          Resources
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-question-circle"></i>
+          User Guide
+        </div>
+      </div>
+      <div class="user-profile">
+        <div class="avatar">SM</div>
+        <div class="user-info">
+          <div class="user-name">Subham Mitra</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area: top header + secondary sidebar + main content -->
+    <div class="main-content">
+      <!-- Top header bar with breadcrumb + actions -->
+      <div class="top-header">
+        <div class="breadcrumb-actions-row">
+          <!-- Breadcrumb on the left -->
+          <div class="breadcrumb">
+            <a href="#">Businesses</a>
+            <span>/</span>
+            <a href="#">John’s Beds</a>
+            <span>/</span>
+            Appraisal Builder
+          </div>
+          <!-- Actions on the right -->
+          <div class="header-actions">
+            <button class="btn">Edit</button>
+            <label class="switch">
+              <input type="checkbox">
+              <span class="slider"></span>
+            </label>
+            <button class="btn">Preview</button>
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body area: secondary sidebar on the left, main content on the right -->
+      <div class="body-area">
+        <!-- Secondary Sidebar -->
+        <div class="secondary-sidebar">
+          <div class="secondary-menu">
+            <div class="business-name-header">
+              Appraisal Builder
+            </div>
+            <!-- Additional appraisal menu items (vertical) -->
+            <div class="secondary-menu-item">
+              Introduction
+            </div>
+            <div class="secondary-menu-item">
+              Business Information
+            </div>
+            <div class="secondary-menu-item">
+              Industry Analysis
+            </div>
+            <div class="secondary-menu-item">
+              Financial Analysis
+            </div>
+            <div class="secondary-menu-item">
+              Normalized Balance Sheet
+            </div>
+            <div class="secondary-menu-item active">
+              Methodology Selector
+            </div>
+            <div class="secondary-menu-item">
+              Business Risk Analysis
+            </div>
+            <div class="secondary-menu-item">
+              Multiple Calculation
+            </div>
+            <div class="secondary-menu-item">
+              Appraisal Calculation
+            </div>
+            <div class="secondary-menu-item">
+              Broker Summary Video
+            </div>
+            <div class="secondary-menu-item">
+              Acquirer Costs
+            </div>
+            <div class="secondary-menu-item">
+              Next Steps
+            </div>
+            <div class="secondary-menu-item">
+              Proposal & Fee Structure
+            </div>
+            <div class="secondary-menu-item">
+              Glossary
+            </div>
+            <div class="secondary-menu-item">
+              Disclaimers
+            </div>
+            <div class="secondary-menu-item">
+              About Us
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-container">
+          <div class="card">
+            <div class="card-body">
+              <!-- Example content for "Methodology Selector" -->
+              <p style="font-size: 15px; color: #111827; margin-bottom: 16px;">
+                Which type of appraisal method would you like to do today?
+              </p>
+              <div class="method-list">
+                <div class="method-item">
+                  <div class="method-info">
+                    <h4>Multiple Of Earnings Method</h4>
+                    <p>EBITDA or PE Multiple. In most circumstances.</p>
+                  </div>
+                  <button class="btn btn-select">Select</button>
+                </div>
+                <div class="method-item">
+                  <div class="method-info">
+                    <h4>Multiple Of Revenue Method</h4>
+                    <p>Used for professional services and software.</p>
+                  </div>
+                  <button class="btn btn-select">Select</button>
+                </div>
+                <div class="method-item">
+                  <div class="method-info">
+                    <h4>Asset x Earnings Method</h4>
+                    <p>Ideal for businesses like freight and dray etc.</p>
+                  </div>
+                  <button class="btn btn-select">Select</button>
+                </div>
+                <div class="method-item">
+                  <div class="method-info">
+                    <h4>Discounted Cash Flow (DCF) Method</h4>
+                    <p>Future Secured Revenue &amp; Time factor in licenses.</p>
+                  </div>
+                  <button class="btn btn-select">Select</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Add any additional sections or cards here as needed -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script for toggling active states & “Select/Selected” button behavior -->
+  <script>
+    // Primary sidebar active state
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        menuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Secondary menu active state
+    const secondaryMenuItems = document.querySelectorAll('.secondary-menu-item');
+    secondaryMenuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        secondaryMenuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // “Select” / “Selected” toggle for the method buttons
+    const selectButtons = document.querySelectorAll('.btn-select');
+    selectButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('selected');
+        btn.textContent = btn.classList.contains('selected') ? 'Selected' : 'Select';
+      });
+    });
+  </script>
+</body>
+</html>

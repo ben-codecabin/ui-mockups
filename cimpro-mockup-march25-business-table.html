@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIM-PRO Interface - Businesses</title>
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* --------------------------------------------------
+       Base styles and reset (from saas2-blue-accent.html)
+    ----------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f3f4f6;
+      color: #111827;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ------------------------------------------
+       Main (Left) Sidebar
+    ------------------------------------------- */
+    .main-sidebar {
+      width: 240px;
+      background-color: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+    }
+    .logo-container {
+      padding: 20px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background-color: #3b82f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 12px;
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 18px;
+      color: #111827;
+    }
+    .main-menu {
+      flex: 1;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #4b5563;
+      font-size: 14px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .menu-item:hover {
+      background-color: #f0f2f5;
+    }
+    .menu-item.active {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    .menu-item i {
+      margin-right: 12px;
+      width: 18px;
+      text-align: center;
+    }
+    .user-profile {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    .user-info {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #111827;
+    }
+    .user-role {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ------------------------------------------
+       Content Container (no top menu or secondary menu)
+    ------------------------------------------- */
+    .content-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .content-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ------------------------------------------
+       Table Actions (search + buttons) row
+    ------------------------------------------- */
+    .table-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .search-container input {
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 250px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-container input:focus {
+      border-color: #3b82f6;
+    }
+    .actions-right button {
+      margin-left: 8px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      outline: none;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    /* ------------------------------------------
+       Table styling
+    ------------------------------------------- */
+    .card.table-card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 12px 24px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    td {
+      padding: 16px 24px;
+      font-size: 14px;
+      color: #111827;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Quick Action Buttons */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid #e5e7eb;
+      background-color: #fff;
+      color: #4b5563;
+    }
+    .btn-sm:hover {
+      background-color: #f0f2f5;
+    }
+
+    /* Example pill style for listing status */
+    .status-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: capitalize;
+      color: #fff;
+    }
+    .status-pill.prospect {
+      background-color: #6b7280; /* Gray */
+    }
+    .status-pill.live {
+      background-color: #10b981; /* Green */
+    }
+    .status-pill.sold {
+      background-color: #ef4444; /* Red */
+    }
+    .status-pill.withdrawn {
+      background-color: #9ca3af; /* Lighter gray */
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Main (Left) Sidebar -->
+    <div class="main-sidebar">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="logo-text">CIM-PRO</div>
+      </div>
+      <div class="main-menu">
+        <div class="menu-item active">
+          <i class="fas fa-briefcase"></i>
+          Businesses
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-users"></i>
+          Users
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Templates
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-book"></i>
+          Resources
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-question-circle"></i>
+          User Guide
+        </div>
+      </div>
+      <div class="user-profile">
+        <div class="avatar">SM</div>
+        <div class="user-info">
+          <div class="user-name">Subham Mitra</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content area (No top or secondary menu) -->
+    <div class="content-container">
+      <div class="content-body">
+        <!-- Table actions row: search + filter + add business -->
+        <div class="table-actions-row">
+          <div class="search-container">
+            <input type="text" placeholder="Search businesses...">
+          </div>
+          <div class="actions-right">
+            <button class="btn">Filter Businesses</button>
+            <button class="btn btn-primary">Add Business</button>
+          </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="card table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Business Name</th>
+                <th>Broker Name</th>
+                <th>Business Industry</th>
+                <th>Listing Status</th>
+                <th>Business Profit</th>
+                <th>Quick Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Example row 1 -->
+              <tr>
+                <td>Provac</td>
+                <td>John Smith</td>
+                <td>Civil Contracting</td>
+                <td>
+                  <span class="status-pill prospect">Prospect</span>
+                </td>
+                <td>$3.12m</td>
+                <td>
+                  <div class="quick-actions">
+                    <button class="btn-sm">Home</button>
+                    <button class="btn-sm">Appraisal</button>
+                    <button class="btn-sm">Proposal</button>
+                    <button class="btn-sm">CIM</button>
+                    <button class="btn-sm">Sharing</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Example row 2 -->
+              <tr>
+                <td>Hillsby Cars</td>
+                <td>Jane Doe</td>
+                <td>Automotive</td>
+                <td>
+                  <span class="status-pill live">Live</span>
+                </td>
+                <td>$2.45m</td>
+                <td>
+                  <div class="quick-actions">
+                    <button class="btn-sm">Home</button>
+                    <button class="btn-sm">Appraisal</button>
+                    <button class="btn-sm">Proposal</button>
+                    <button class="btn-sm">CIM</button>
+                    <button class="btn-sm">Sharing</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Example row 3 -->
+              <tr>
+                <td>John's Beds</td>
+                <td>Alex Johnson</td>
+                <td>Agriculture, Forestry, and Fishing</td>
+                <td>
+                  <span class="status-pill sold">Sold</span>
+                </td>
+                <td>$925k</td>
+                <td>
+                  <div class="quick-actions">
+                    <button class="btn-sm">Home</button>
+                    <button class="btn-sm">Appraisal</button>
+                    <button class="btn-sm">Proposal</button>
+                    <button class="btn-sm">CIM</button>
+                    <button class="btn-sm">Sharing</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic script for menu active states -->
+  <script>
+    // Primary menu active state
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        menuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
