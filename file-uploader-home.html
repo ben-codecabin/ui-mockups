@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>File Uploader</title>
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+  <style>
+    /* ------------------------------------------
+       Base Styles & Reset
+    ------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f3f4f6;
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* ------------------------------------------
+       Container (max-width 1200px)
+    ------------------------------------------- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    /* ------------------------------------------
+       Row 1: Logo
+    ------------------------------------------- */
+    .row-1 {
+      display: flex;
+      align-items: center;
+    }
+    .logo-image {
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+    }
+    /* ------------------------------------------
+       Row 2: Page Heading
+    ------------------------------------------- */
+    .row-2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+    }
+    /* ------------------------------------------
+       Row 3: Instructional Text
+    ------------------------------------------- */
+    .row-3 {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    /* ------------------------------------------
+       Row 4: Breadcrumb (floating text)
+    ------------------------------------------- */
+    .row-4 {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .breadcrumb a {
+      color: #3b82f6;
+      text-decoration: underline;
+      margin-right: 4px;
+    }
+    /* ------------------------------------------
+       Row 5: Folder Cards
+    ------------------------------------------- */
+    .folders-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .folder-card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      width: 280px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .folder-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .folder-icon {
+      font-size: 32px;
+      color: #fbbf24; /* yellow-ish for folder icons */
+      margin-right: 8px;
+    }
+    .folder-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #111827;
+    }
+    .folder-files {
+      font-size: 13px;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Row 1: Logo -->
+    <div class="row-1">
+      <img class="logo-image" src="https://uc7ce5d4f52bfca1549ae073eb3f.dl.dropboxusercontent.com/cd/0/inline/Cm5OjTl7zC2LadQjsv-FQBB8H-In3kqy6myS3A8DUauM45YDduiW4tWJjesbk6MGtrJAH6X0MGyBhFz8Y2MAPiis0QRKcZhYAicUkKlZfrc6Gd4txZo-JpqPmN2n2xTk4eYPN-boBbQND71PPTuP68Ij/file#" alt="Logo" />
+    </div>
+
+    <!-- Row 2: Heading -->
+    <div class="row-2">
+      File Uploader - BusinessName
+    </div>
+
+    <!-- Row 3: Instructional Text -->
+    <div class="row-3">
+      Please upload the requested files into the most suitable folder.
+    </div>
+
+    <!-- Row 4: Breadcrumb (floating text) -->
+    <div class="row-4">
+      <a href="#">Folder</a>
+      <!-- Future breadcrumb can extend to "Folder / Folder Name" -->
+    </div>
+
+    <!-- Row 5: Folder Cards -->
+    <div class="folders-row">
+      <!-- Example Folder Card 1 -->
+      <div class="folder-card">
+        <div class="folder-header">
+          <i class="fas fa-folder folder-icon"></i>
+          <div class="folder-title">General</div>
+        </div>
+        <div class="folder-files">2 files</div>
+      </div>
+
+      <!-- Example Folder Card 2 -->
+      <div class="folder-card">
+        <div class="folder-header">
+          <i class="fas fa-folder folder-icon"></i>
+          <div class="folder-title">TestPublicView</div>
+        </div>
+        <div class="folder-files">10 files</div>
+      </div>
+
+      <!-- Additional folder cards can be added here -->
+    </div>
+  </div>
+</body>
+</html>
