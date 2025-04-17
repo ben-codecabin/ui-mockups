@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BCS Central – Manage Sites</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-pQfm3j3nxie7cL7Zg+HflW8XWzNwx6zh7ayM5ElBtoV0qTL2Vg2dpqfh1MhYrQeZk+ZzoXFEdJxkw7h2DXjETA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+  <style>
+    /* RESET & BASE */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #FAFAFA;
+      colour: #3D3F3D;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 260px; height: 100vh;
+      background: #F5F5F5;
+      border-right: 1px solid #E0E0E0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 0;
+    }
+    .sidebar .logo {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .sidebar .logo img {
+      max-width: 100px;
+      height: auto;
+    }
+    .sidebar .logo h2 {
+      margin-top: 8px;
+      font-size: 18px;
+      colour: #3D3F3D;
+      font-weight: 600;
+    }
+    .menu {
+      list-style: none;
+      margin-top: 24px;
+      padding: 0;
+    }
+    .menu li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      font-size: 15px;
+      colour: #3D3F3D;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s, colour 0.2s;
+    }
+    .menu li i { width: 18px; text-align: center; }
+    .menu li:hover {
+      background: #E8F2F5;
+    }
+    .menu li.active {
+      background: #96ADBC;
+      colour: #FFFFFF;
+    }
+
+    /* USER INFO */
+    .user-info {
+      padding: 16px 24px;
+      border-top: 1px solid #E0E0E0;
+      font-size: 14px;
+      colour: #626262;
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      margin-left: 260px;
+      padding: 32px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 26px;
+      colour: #3D3F3D;
+      font-weight: 600;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #96ADBC;
+      colour: #FFFFFF;
+      border: none;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary i { font-size: 14px; }
+    .btn-primary:hover {
+      background: #7B98A3;
+    }
+
+    /* TABLE CARD */
+    .table-card {
+      background: #FFFFFF;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead {
+      background: #96ADBC;
+    }
+    th, td {
+      text-align: left;
+      padding: 16px;
+      colour: #3D3F3D;
+    }
+    th { font-weight: 500; }
+    tbody tr:hover {
+      background: #FCFCFC;
+    }
+
+    /* EDIT BUTTON */
+    .edit-btn {
+      background: #FFFFFF;
+      colour: #96ADBC;
+      border: 1px solid #96ADBC;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, colour 0.2s;
+    }
+    .edit-btn:hover {
+      background: #96ADBC;
+      colour: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="logo">
+        <img src="https://craftypint.s3.amazonaws.com/crafty/uploads/bcs_social-icon_gradient.png"
+             alt="BCS Logo">
+        <h2>BCS Central</h2>
+      </div>
+      <ul class="menu">
+        <li><i class="fas fa-tachometer-alt"></i> Dashboard</li>
+        <li><i class="fas fa-users"></i> Manage Users</li>
+        <li class="active"><i class="fas fa-map-marker-alt"></i> Manage Sites</li>
+      </ul>
+    </div>
+    <div class="user-info">
+      <strong>John Doe</strong><br/>
+      john.doe@example.com
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="content">
+    <div class="header">
+      <h1>Manage Sites</h1>
+      <button class="btn-primary">
+        <i class="fas fa-plus"></i>
+        Add New Site
+      </button>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Boiler Model</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Site A</td>
+            <td>123 Main St, Sydney</td>
+            <td>Model X100</td>
+            <td><button class="edit-btn">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Site B</td>
+            <td>456 Elm St, Melbourne</td>
+            <td>Model Y200</td>
+            <td><button class="edit-btn">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Site C</td>
+            <td>789 Oak St, Brisbane</td>
+            <td>Model Z300</td>
+            <td><button class="edit-btn">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</body>
+</html>
