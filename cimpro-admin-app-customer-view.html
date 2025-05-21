@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin App - First Choice Summit</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* ------------------------------------------
+      Base styles and reset (from saas2-blue-accent.html)
+    ------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f3f4f6;
+      color: #111827;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ------------------------------------------
+      Main (Left) Sidebar
+    ------------------------------------------- */
+    .main-sidebar {
+      width: 240px;
+      background-color: #ffffff;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+    }
+    .logo-container {
+      padding: 20px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column; /* Changed to column for logo and text stacking */
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-img { /* New style for the logo image */
+      width: 120px; /* Adjust as needed */
+      height: auto;
+      margin-bottom: 8px; /* Space between logo and "Admin App" text */
+    }
+    .admin-app-label { /* New style for "Admin App" text */
+      background-color: #3b82f6; /* Blue background like a button */
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background-color: #3b82f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 12px;
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 18px;
+      color: #111827;
+    }
+    .main-menu {
+      flex: 1;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #4b5563;
+      font-size: 14px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .menu-item:hover {
+      background-color: #f0f2f5;
+    }
+    .menu-item.active {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    .menu-item i {
+      margin-right: 12px;
+      width: 18px;
+      text-align: center;
+    }
+    .user-profile {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    .user-info {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #111827;
+    }
+    .user-role {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ------------------------------------------
+      Main Content (top header + body area)
+    ------------------------------------------- */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Full-width top header (above secondary sidebar) */
+    .top-header {
+      background-color: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      flex-shrink: 0;
+    }
+    .breadcrumb {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .breadcrumb a {
+      color: #3b82f6;
+      text-decoration: underline;
+      margin-right: 4px;
+    }
+    .breadcrumb span {
+      margin-right: 4px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      outline: none;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    /* Primary button (now blue) */
+    .btn-primary {
+      background-color: #3b82f6; /* Blue */
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb; /* Darker blue on hover */
+    }
+    /* Secondary button (light grey) */
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+    }
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+    /* Danger button (red) */
+    .btn-danger {
+      background-color: #ef4444; /* Red */
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #dc2626; /* Darker red on hover */
+    }
+
+    /* Body area: secondary sidebar + content container side-by-side */
+    .body-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Secondary (Left) Sidebar */
+    .secondary-sidebar {
+      width: 220px;
+      background-color: #f8f9fa;
+      border-right: 1px solid #e5e7eb;
+      box-shadow: 1px 0 2px rgba(0, 0, 0, 0.03);
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .secondary-menu {
+      padding: 0;
+    }
+    .business-name-header {
+      padding: 16px;
+      font-weight: 600;
+      font-size: 16px;
+      color: #111827;
+      border-bottom: 1px solid #e5e7eb;
+      background-color: #f3f4f6;
+    }
+    .secondary-menu-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #4b5563;
+      border-bottom: 1px solid #edf2f7;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .secondary-menu-item:hover {
+      background-color: #f0f2f5;
+    }
+    .secondary-menu-item.active {
+      color: #3b82f6;
+      border-left: 4px solid #3b82f6;
+      background-color: rgba(59, 130, 246, 0.05);
+      padding-left: 12px;
+      font-weight: 500;
+    }
+    .quick-links-header {
+      padding: 12px 16px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #4b5563;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e5e7eb;
+      margin-top: 12px;
+    }
+
+    /* Content container & scrolling body */
+    .content-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .content-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* New styles for Overview content */
+    .overview-section {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .overview-section h2 {
+        font-size: 16px; /* Adjusted font size to match business-name-header */
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+    }
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    .overview-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .overview-item-label {
+        font-size: 14px;
+        color: #4b5563;
+        margin-bottom: 4px;
+    }
+    .overview-item-value {
+        font-size: 14px; /* Adjusted font size to be slightly smaller */
+        font-weight: 500;
+        color: #111827;
+    }
+    .separator {
+        border-top: 1px solid #e5e7eb;
+        margin: 24px 0;
+    }
+
+    /* Badge for 'Active' status */
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+    }
+    .badge.basic {
+      background-color: #9ca3af;
+    }
+    .badge.premium {
+      background-color: #3b82f6;
+    }
+    .badge.status-active { /* New class for active status */
+      background-color: #22c55e; /* Green background */
+      color: white;
+      font-size: 14px; /* Maintain readability */
+      padding: 6px 10px; /* Slightly larger padding for button feel */
+    }
+
+    /* Original analytics card (repurposed for consistency) */
+    .analytics-card {
+      flex: 1;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .analytics-card h3 {
+      font-size: 16px;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+    .analytics-card .card-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    /* CSS for the Slide-out Tray (Add Business Form) */
+    .slide-out-tray {
+        position: fixed;
+        top: 0;
+        right: -400px; /* Start off-screen to the right */
+        width: 400px;
+        height: 100%;
+        background-color: #ffffff;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); /* Shadow from left */
+        z-index: 20; /* Higher than blur overlay */
+        transition: right 0.3s ease-in-out; /* Transition 'right' property */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .slide-out-tray.open {
+        right: 0; /* Slide in from the right */
+    }
+
+    .tray-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f9fafb;
+    }
+    .tray-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #6b7280;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    .close-btn:hover {
+        color: #111827;
+    }
+
+    .tray-body {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #111827;
+        transition: border-color 0.2s ease;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-section-header {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin-top: 24px; /* Increased top margin for more gap */
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    /* Specific adjustment for the very first header to avoid excessive top padding */
+    .tray-body .form-section-header:first-of-type {
+        margin-top: 0;
+    }
+
+    .tray-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        text-align: right;
+    }
+    .btn-create-business {
+        background-color: #3b82f6; /* Changed to normal blue */
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+    }
+    .btn-create-business:hover {
+        background-color: #2563eb; /* Darker blue on hover */
+    }
+
+    /* Blur Overlay */
+    .blur-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(243, 244, 246, 0.7); /* Match body background with transparency */
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px); /* Safari support */
+        z-index: 15; /* Between sidebar and tray */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .blur-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Responsive for slide-out tray */
+    @media (max-width: 768px) {
+        .slide-out-tray {
+            width: 100%; /* Full width on small screens */
+            right: -100%; /* Start off-screen to the right */
+        }
+        .slide-out-tray.open {
+            right: 0; /* Slide in from the right */
+        }
+    }
+
+    /* Styles for tables within content views */
+    .content-table-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .content-table-header {
+        padding: 12px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        gap: 10px; /* Space between items */
+    }
+
+    .content-table-header h2, .content-table-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0; /* Reset margin for alignment */
+    }
+
+    .content-table-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .content-table-actions input[type="text"] {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #111827;
+        width: 180px; /* Default width for search input */
+    }
+
+    .content-table-actions .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+    }
+
+    .content-table-actions .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .content-table-actions .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .content-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .content-table th, .content-table td {
+        text-align: left;
+        padding: 16px 24px;
+        font-size: 14px;
+        color: #111827;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    .content-table th {
+        font-size: 12px;
+        font-weight: 500;
+        color: #4b5563;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background-color: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .content-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .content-table .btn-table-action {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+        color: #4b5563;
+    }
+    .content-table .btn-table-action:hover {
+        background-color: #f0f2f5;
+    }
+
+    .content-table .btn-danger {
+        background-color: #ef4444;
+        color: white;
+        border-color: #ef4444;
+    }
+    .content-table .btn-danger:hover {
+        background-color: #dc2626;
+        border-color: #dc2626;
+    }
+
+    /* Responsive adjustments for tables */
+    @media (max-width: 768px) {
+        .content-table-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .content-table-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .content-table-actions input[type="text"] {
+            width: calc(100% - 100px); /* Adjust width for smaller screens */
+        }
+        .content-table th, .content-table td {
+            padding: 12px 16px;
+            font-size: 12px;
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="main-sidebar">
+      <div class="logo-container">
+        <img src="https://cim-pro.co/wp-content/uploads/2025/01/cropped-CIM-PRO-New-Logo-White-BG.png" alt="CIM-PRO Logo" class="logo-img">
+        <div class="admin-app-label">Admin App</div>
+      </div>
+      <div class="main-menu">
+        <div class="menu-item">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </div>
+        <div class="menu-item active">
+          <i class="fas fa-users"></i> Customers
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-chart-line"></i> Analytics
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-cog"></i> Settings
+        </div>
+      </div>
+      <div class="user-profile">
+        <div class="avatar">JL</div>
+        <div class="user-info">
+          <div class="user-name">Jade Lutton</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="top-header">
+        <div class="breadcrumb">
+          <a href="#">Customers</a>
+          <span>/</span>
+          <a href="#">First Choice Summit</a>
+          <span>/</span>
+          Overview
+        </div>
+        <div class="header-actions">
+          <button id="editCustomerBtn" class="btn btn-secondary">Edit Customer</button>
+          <button class="btn btn-danger">Cancel Subscription</button>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="secondary-sidebar">
+          <div class="secondary-menu">
+            <div class="business-name-header">
+              First Choice Summit
+            </div>
+            <div class="secondary-menu-item active" data-page="overview">
+              Overview
+            </div>
+            <div class="secondary-menu-item" data-page="workspace">
+              Workspace
+            </div>
+            <div class="secondary-menu-item" data-page="billing">
+              Billing
+            </div>
+            <div class="secondary-menu-item" data-page="users">
+              Users
+            </div>
+            <div class="secondary-menu-item" data-page="documents">
+              Documents
+            </div>
+          </div>
+        </div>
+
+        <div class="content-container">
+          <div class="content-body">
+            <div id="overview-page" class="overview-section">
+                <h2>Client Details</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <div class="overview-item-label">Status</div>
+                        <div class="overview-item-value"><span class="badge status-active">Active</span></div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Created</div>
+                        <div class="overview-item-value">Jan 15 2023</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Next Billing Date</div>
+                        <div class="overview-item-value">June 12 2025</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Country</div>
+                        <div class="overview-item-value">United States</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Address</div>
+                        <div class="overview-item-value">123 Main St, Anytown, CA 90210</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Website</div>
+                        <div class="overview-item-value">www.firstchoicesummitbb.com</div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <h2>Key Contact Information</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <div class="overview-item-label">Name</div>
+                        <div class="overview-item-value">John Smith</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Email</div>
+                        <div class="overview-item-value">john@firstchoicesummitbb.com</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Phone</div>
+                        <div class="overview-item-value">02312525151</div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <h2>Billing Contact</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <div class="overview-item-label">Tax ID (EIN/ABN)</div>
+                        <div class="overview-item-value">XX-XXXXXXX</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Billing Email Address</div>
+                        <div class="overview-item-value">billing@firstchoicesummitbb.com</div>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <h2>Financial Overview</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <div class="overview-item-label">Lifetime Revenue</div>
+                        <div class="overview-item-value">$15,200</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Number of Active Seats</div>
+                        <div class="overview-item-value">8</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Current Monthly Fee</div>
+                        <div class="overview-item-value">$730</div>
+                    </div>
+                </div>
+            </div>
+            <div id="workspace-page" class="overview-section" style="display: none;">
+                <h2>Workspace Details</h2>
+                <p style="margin-bottom: 20px; color: #4b5563;">No workspace has been created yet.</p>
+                <button class="btn btn-primary">Generate Workspace</button>
+            </div>
+            <div id="billing-page" class="overview-section" style="display: none;">
+                <h2>Billing Details</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <div class="overview-item-label">Current Plan</div>
+                        <div class="overview-item-value">Premium</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Current Monthly Cost</div>
+                        <div class="overview-item-value">$730</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Last Payment</div>
+                        <div class="overview-item-value">May 12, 2025</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Payment Method</div>
+                        <div class="overview-item-value">Visa **** 1234</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Stripe Customer ID</div>
+                        <div class="overview-item-value">cus_AbCdEfGhIjKlMn</div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-item-label">Subscription ID</div>
+                        <div class="overview-item-value">sub_OpQrStUvWxYz12</div>
+                    </div>
+                </div>
+                <div class="separator"></div>
+                <div class="content-table-container">
+                    <div class="content-table-header">
+                        <h2>Payment History</h2>
+                    </div>
+                    <div class="content-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Stripe Charge ID</th>
+                                    <th>Download Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Apr 12, 2025</td>
+                                    <td>$730</td>
+                                    <td><a href="https://stripe.com/charge/ch_12345" target="_blank" style="color: #3b82f6; text-decoration: underline;">ch_12345</a></td>
+                                    <td><button class="btn-table-action">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 12, 2025</td>
+                                    <td>$730</td>
+                                    <td><a href="https://stripe.com/charge/ch_67890" target="_blank" style="color: #3b82f6; text-decoration: underline;">ch_67890</a></td>
+                                    <td><button class="btn-table-action">Download</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Feb 12, 2025</td>
+                                    <td>$730</td>
+                                    <td><a href="https://stripe.com/charge/ch_abcde" target="_blank" style="color: #3b82f6; text-decoration: underline;">ch_abcde</a></td>
+                                    <td><button class="btn-table-action">Download</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="users-page" class="overview-section" style="display: none;">
+                <div class="content-table-header">
+                    <h2>User Management</h2>
+                    <div class="content-table-actions">
+                        <input type="text" placeholder="Search users...">
+                        <button class="btn btn-primary">Add User</button>
+                    </div>
+                </div>
+                <div class="content-table-container" style="margin-top: 0;">
+                    <div class="content-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Alice Johnson</td>
+                                    <td>alice@example.com</td>
+                                    <td>Admin</td>
+                                    <td>
+                                        <button class="btn-table-action">Reset Password</button>
+                                        <button class="btn-table-action btn-danger">Remove User</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Bob Williams</td>
+                                    <td>bob@example.com</td>
+                                    <td>Broker</td>
+                                    <td>
+                                        <button class="btn-table-action">Reset Password</button>
+                                        <button class="btn-table-action btn-danger">Remove User</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Charlie Brown</td>
+                                    <td>charlie@example.com</td>
+                                    <td>Broker</td>
+                                    <td>
+                                        <button class="btn-table-action">Reset Password</button>
+                                        <button class="btn-table-action btn-danger">Remove User</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Diana Prince</td>
+                                    <td>diana@example.com</td>
+                                    <td>Broker</td>
+                                    <td>
+                                        <button class="btn-table-action">Reset Password</button>
+                                        <button class="btn-table-action btn-danger">Remove User</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Eve Adams</td>
+                                    <td>eve@example.com</td>
+                                    <td>Broker</td>
+                                    <td>
+                                        <button class="btn-table-action">Reset Password</button>
+                                        <button class="btn-table-action btn-danger">Remove User</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="documents-page" class="overview-section" style="display: none;">
+                <div class="content-table-header">
+                    <h2>Document Library</h2>
+                    <button class="btn btn-primary">Add Document</button>
+                </div>
+                <div class="content-table-container" style="margin-top: 0;">
+                    <div class="content-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>File Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Signed Service Agreement</td>
+                                    <td>24 Jan 2025</td>
+                                    <td><button class="btn-table-action">View File</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+          </div> </div> </div> </div> </div> <div id="blurOverlay" class="blur-overlay"></div>
+
+  <div id="addBusinessTray" class="slide-out-tray">
+    <div class="tray-header">
+      <h2>Edit Customer</h2>
+      <button id="closeTrayBtn" class="close-btn">&times;</button>
+    </div>
+    <div class="tray-body">
+      <form>
+        <h3 class="form-section-header">Business Information</h3>
+        <div class="form-group">
+          <label for="businessName">Business Name</label>
+          <input type="text" id="businessName" name="businessName" placeholder="e.g., Acme Corp" required>
+        </div>
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" placeholder="e.g., 123 Main St, Anytown, CA 90210">
+        </div>
+        <div class="form-group">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" placeholder="e.g., www.acmecorp.com">
+        </div>
+
+        <h3 class="form-section-header">Billing Information</h3>
+        <div class="form-group">
+          <label for="taxId">Tax ID (EIN/ABN)</label>
+          <input type="text" id="taxId" name="taxId" placeholder="e.g., XX-XXXXXXX">
+        </div>
+        <div class="form-group">
+          <label for="billingEmail">Billing Email Address</label>
+          <input type="email" id="billingEmail" name="billingEmail" placeholder="e.g., billing@acmecorp.com">
+        </div>
+
+        <h3 class="form-section-header">Key Contact Information</h3>
+        <div class="form-group">
+          <label for="keyContactName">Key Contact Name</label>
+          <input type="text" id="keyContactName" name="keyContactName" placeholder="e.g., Jane Doe">
+        </div>
+        <div class="form-group">
+          <label for="keyContactEmail">Key Contact Email</label>
+          <input type="email" id="keyContactEmail" name="keyContactEmail" placeholder="e.g., jane.doe@example.com">
+        </div>
+        <div class="form-group">
+          <label for="keyContactPhone">Key Contact Phone</label>
+          <input type="tel" id="keyContactPhone" name="keyContactPhone" placeholder="e.g., +1 (555) 123-4567">
+        </div>
+        <div class="form-group">
+          <label for="keyContactJobTitle">Key Contact Job Title</label>
+          <input type="text" id="keyContactJobTitle" name="keyContactJobTitle" placeholder="e.g., CEO">
+        </div>
+      </form>
+    </div>
+    <div class="tray-footer">
+      <button class="btn-create-business">SAVE CHANGES</button>
+    </div>
+  </div>
+
+  <script>
+    // Primary sidebar active state
+    const mainMenuItems = document.querySelectorAll('.main-menu .menu-item');
+    mainMenuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        mainMenuItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Secondary sidebar active state and content switching
+    const secondaryMenuItems = document.querySelectorAll('.secondary-menu-item');
+    const contentPages = document.querySelectorAll('.content-body .overview-section');
+
+    secondaryMenuItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // Remove active class from all secondary menu items
+        secondaryMenuItems.forEach(i => i.classList.remove('active'));
+        // Add active class to the clicked item
+        this.classList.add('active');
+
+        // Get the data-page attribute to determine which content to show
+        const targetPage = this.getAttribute('data-page');
+
+        // Hide all content pages
+        contentPages.forEach(page => {
+          page.style.display = 'none';
+        });
+
+        // Show the target content page
+        const pageToShow = document.getElementById(`${targetPage}-page`);
+        if (pageToShow) {
+          pageToShow.style.display = 'block';
+        }
+
+        // Update breadcrumb for secondary menu items (optional, but good for UX)
+        const breadcrumbSpan = document.querySelector('.breadcrumb span:last-of-type');
+        if (breadcrumbSpan) {
+            breadcrumbSpan.nextSibling.textContent = ' ' + targetPage.charAt(0).toUpperCase() + targetPage.slice(1);
+        }
+      });
+    });
+
+    // Set 'Customers' as active in the primary menu on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const customersMenuItem = document.querySelector('.main-menu .menu-item i.fa-users').closest('.menu-item');
+        if (customersMenuItem) {
+            mainMenuItems.forEach(i => i.classList.remove('active'));
+            customersMenuItem.classList.add('active');
+        }
+
+        // Trigger click on 'Overview' to ensure it's active and content is shown on load
+        const overviewMenuItem = document.querySelector('.secondary-menu-item[data-page="overview"]');
+        if (overviewMenuItem) {
+            overviewMenuItem.click();
+        }
+    });
+
+    // JavaScript for Slide-out Tray functionality
+    const editCustomerBtn = document.getElementById('editCustomerBtn');
+    const addBusinessTray = document.getElementById('addBusinessTray');
+    const closeTrayBtn = document.getElementById('closeTrayBtn');
+    const blurOverlay = document.getElementById('blurOverlay');
+
+    // Function to open the tray
+    function openTray() {
+      addBusinessTray.classList.add('open');
+      blurOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Function to close the tray
+    function closeTray() {
+      addBusinessTray.classList.remove('open');
+      blurOverlay.classList.remove('active');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Event listeners
+    if (editCustomerBtn) {
+      editCustomerBtn.addEventListener('click', openTray);
+    }
+    if (closeTrayBtn) {
+      closeTrayBtn.addEventListener('click', closeTray);
+    }
+    if (blurOverlay) {
+      blurOverlay.addEventListener('click', closeTray);
+    }
+
+    // Optional: Close tray with Escape key
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && addBusinessTray.classList.contains('open')) {
+        closeTray();
+      }
+    });
+  </script>
+</body>
+</html>
