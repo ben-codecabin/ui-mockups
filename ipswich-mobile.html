@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ipswich Council Field App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Tailwind gray-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* Tailwind gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 antialiased">
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden min-h-[calc(100vh-2rem)] flex flex-col">
+        <header class="bg-[#005238] p-6 text-white rounded-t-xl shadow-lg flex flex-col md:flex-row items-center justify-center md:justify-start md:pl-8 md:pr-8">
+            <img src="https://www.ipswich.qld.gov.au/__data/assets/file/0006/120948/icc-stacked.svg" alt="Ipswich City Council Logo" class="h-16 md:h-20 mb-2 md:mb-0 md:mr-6" onerror="this.onerror=null;this.src='https://placehold.co/120x40/000000/FFFFFF?text=Logo';" />
+            <div class="text-center md:text-left flex-grow cursor-pointer" onclick="renderView('main_actions')">
+                <h2 class="text-xl md:text-2xl font-bold mt-1" id="siteNameDisplay">Silver Jubilee Sports Field Club</h2>
+                <p class="text-sm opacity-80 mt-1 flex items-center justify-center md:justify-start">
+                    <i class="fas fa-map-marker-alt mr-1"></i> <span id="locationSuburbDisplay">Spring Mountain</span>
+                </p>
+            </div>
+        </header>
+
+        <nav id="navigationView" class="hidden flex flex-wrap justify-center bg-gray-100 p-3 rounded-b-xl shadow-md space-x-2 md:space-x-4">
+            <button data-view="history" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+                Site History
+            </button>
+            <button data-view="log_defect" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+                Log New Defect
+            </button>
+            <button data-view="scheduled_maintenance" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+                Scheduled Maintenance
+            </button>
+            <button data-view="more_actions" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+                More Actions
+            </button>
+        </nav>
+
+        <main class="p-6 flex-grow">
+            <div id="actionListView" class="p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">What would you like to do?</h3>
+                <div class="space-y-4">
+                    <button data-action-view="history" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
+                        <span><i class="fas fa-history mr-3"></i> View Site History</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button data-action-view="log_defect" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
+                        <span><i class="fas fa-exclamation-triangle mr-3"></i> Log a Defect</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button data-action-view="scheduled_maintenance" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
+                        <span><i class="fas fa-tools mr-3"></i> Complete Scheduled Maintenance</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button data-action-view="more_actions" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
+                        <span><i class="fas fa-ellipsis-h mr-3"></i> More Actions</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="siteHistoryView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Site History</h3>
+                <ul id="historyList" class="space-y-4">
+                    </ul>
+            </div>
+
+            <div id="logDefectView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Log New Defect</h3>
+                <form id="defectForm" class="space-y-4">
+                    <div>
+                        <label for="assetName" class="block text-sm font-medium text-gray-700 mb-1">Asset Name</label>
+                        <input type="text" id="assetName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" value="Silver Jubilee Sports Field Clubhouse" readonly />
+                        <p class="text-xs text-gray-500 mt-1">This field is pre-filled for the current site.</p>
+                    </div>
+                    <div>
+                        <label for="defectType" class="block text-sm font-medium text-gray-700 mb-1">Defect Type <span class="text-red-500">*</span></label>
+                        <select id="defectType" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" required>
+                            <option value="">Select a type</option>
+                            <option value="Structural">Structural</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Surface">Surface (e.g., path, wall)</option>
+                            <option value="HVAC">HVAC</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                        <textarea id="description" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" required></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-microphone mr-1"></i> Consider voice-to-text integration for easier input.
+                        </p>
+                    </div>
+                    <div>
+                        <label for="locationWithinSite" class="block text-sm font-medium text-gray-700 mb-1">Location within Site (e.g., "North-East Corner", "Kitchen HVAC Unit")</label>
+                        <input type="text" id="locationWithinSite" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" placeholder="e.g., Main Hall, HVAC Unit A" />
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-map-marker-alt mr-1"></i> In a real app, this could be a GPS capture or map selection.
+                        </p>
+                    </div>
+                    <div>
+                        <label for="severity" class="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                        <select id="severity" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="photo" class="block text-sm font-medium text-gray-700 mb-1">Attach Photo</label>
+                        <input type="file" id="photo" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100" />
+                        <div id="photoPreviewContainer" class="mt-2 hidden">
+                            <img id="photoPreview" src="#" alt="Defect Preview" class="w-32 h-24 object-cover rounded-md shadow-sm" />
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-[#fdb913] text-gray-900 py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-yellow-500 transition-colors duration-300 ease-in-out">
+                        Submit Defect
+                    </button>
+                </form>
+            </div>
+
+            <div id="scheduledMaintenanceView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Scheduled Maintenance</h3>
+                <ul id="maintenanceList" class="space-y-4">
+                    </ul>
+            </div>
+
+            <div id="moreActionsView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">More Actions</h3>
+                <div class="space-y-3">
+                    <button onclick="openModal('Simulating opening map to show site location. This would embed an Esri map here.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-map-marker-alt mr-3"></i> See Location on Map</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="openModal('Simulating access to site-specific project plans and documents.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-file-alt mr-3"></i> View Project Plans / Documents</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="openModal('Simulating viewing detailed asset inventory and component breakdown for the clubhouse.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-boxes mr-3"></i> Asset Inventory / Component Details</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="openModal('Simulating access to site-specific safety information and known hazards.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-exclamation-triangle mr-3"></i> Safety Information / Site Hazards</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="openModal('Simulating calling the Site Manager (Kelly Bourke).')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-phone mr-3"></i> Call Site Manager</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="openModal('Simulating emailing the Site Manager (Kelly Bourke).')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                        <span><i class="fas fa-envelope mr-3"></i> Email Site Manager</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <p class="text-xs text-gray-500 mt-4 italic">
+                        <i class="fas fa-wifi mr-1"></i> This app is designed to support offline capabilities, syncing data when connection is available.
+                    </p>
+                </div>
+            </div>
+
+            <div id="defectListContainer" class="p-6 bg-white rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Open Defects</h3>
+                <ul id="defectList" class="space-y-4">
+                    </ul>
+            </div>
+        </main>
+
+        <div id="appModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                <p id="modalMessage" class="text-lg font-semibold text-gray-800 mb-4"></p>
+                <button onclick="closeModal()" class="bg-[#fdb913] text-gray-900 py-2 px-5 rounded-md hover:bg-yellow-500 transition-colors duration-300">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global State and Data ---
+        let currentView = 'main_actions'; // 'main_actions', 'history', 'log_defect', 'scheduled_maintenance', 'more_actions'
+        let siteHistory = [];
+        let defects = [];
+        let maintenanceTasks = [];
+
+        // --- DOM Element References ---
+        const navigationView = document.getElementById('navigationView');
+        const actionListView = document.getElementById('actionListView');
+        const siteHistoryView = document.getElementById('siteHistoryView');
+        const logDefectView = document.getElementById('logDefectView');
+        const scheduledMaintenanceView = document.getElementById('scheduledMaintenanceView');
+        const moreActionsView = document.getElementById('moreActionsView');
+        const defectListContainer = document.getElementById('defectListContainer'); // Container for logged defects list
+
+        const historyList = document.getElementById('historyList');
+        const defectForm = document.getElementById('defectForm');
+        const photoInput = document.getElementById('photo');
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+        const photoPreview = document.getElementById('photoPreview');
+        const maintenanceList = document.getElementById('maintenanceList');
+        const defectList = document.getElementById('defectList'); // Ul for defects
+
+        const appModal = document.getElementById('appModal');
+        const modalMessage = document.getElementById('modalMessage');
+
+        // --- Utility Functions ---
+        function openModal(message) {
+            modalMessage.textContent = message;
+            appModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            appModal.classList.add('hidden');
+            modalMessage.textContent = '';
+        }
+
+        function renderView(viewName) {
+            // Hide all content views
+            siteHistoryView.classList.add('hidden');
+            logDefectView.classList.add('hidden');
+            scheduledMaintenanceView.classList.add('hidden');
+            moreActionsView.classList.add('hidden');
+            defectListContainer.classList.add('hidden'); // Always hide/show defect list explicitly
+
+            // Hide/show main action list and horizontal navigation
+            if (viewName === 'main_actions') {
+                actionListView.classList.remove('hidden');
+                navigationView.classList.add('hidden');
+            } else {
+                actionListView.classList.add('hidden');
+                navigationView.classList.remove('hidden');
+                // Show defect list below specific views if not main_actions
+                defectListContainer.classList.remove('hidden');
+            }
+
+            // Show the requested view
+            switch (viewName) {
+                case 'history':
+                    siteHistoryView.classList.remove('hidden');
+                    renderSiteHistory();
+                    break;
+                case 'log_defect':
+                    logDefectView.classList.remove('hidden');
+                    break;
+                case 'scheduled_maintenance':
+                    scheduledMaintenanceView.classList.remove('hidden');
+                    renderScheduledMaintenance();
+                    break;
+                case 'more_actions':
+                    moreActionsView.classList.remove('hidden');
+                    break;
+            }
+
+            // Update active state of navigation buttons
+            document.querySelectorAll('#navigationView button').forEach(button => {
+                if (button.dataset.view === viewName) {
+                    button.classList.add('bg-[#fdb913]', 'text-gray-900', 'shadow-lg');
+                    button.classList.remove('bg-white', 'text-gray-700', 'hover:bg-yellow-100');
+                } else {
+                    button.classList.remove('bg-[#fdb913]', 'text-gray-900', 'shadow-lg');
+                    button.classList.add('bg-white', 'text-gray-700', 'hover:bg-yellow-100');
+                }
+            });
+
+            currentView = viewName; // Update global state
+        }
+
+        // --- Render Functions for Data ---
+        function renderSiteHistory() {
+            historyList.innerHTML = ''; // Clear previous content
+            if (siteHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-600 italic">No history available for this site.</p>';
+            } else {
+                siteHistory.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100';
+                    li.innerHTML = `
+                        <p class="text-sm text-yellow-700 font-semibold">${item.date}</p>
+                        <p class="text-lg font-medium text-gray-900 mt-1">${item.event}</p>
+                        <p class="text-gray-700 text-sm mt-1">${item.details}</p>
+                    `;
+                    historyList.appendChild(li);
+                });
+            }
+        }
+
+        function renderScheduledMaintenance() {
+            maintenanceList.innerHTML = ''; // Clear previous content
+            if (maintenanceTasks.length === 0) {
+                maintenanceList.innerHTML = '<p class="text-gray-600 italic">No scheduled maintenance tasks for this site.</p>';
+            } else {
+                maintenanceTasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-green-50 p-4 rounded-lg shadow-sm border border-green-100';
+                    const statusColorClass = task.status === 'Completed' ? 'text-green-600' : task.status === 'Assigned' ? 'text-orange-600' : 'text-blue-600';
+                    li.innerHTML = `
+                        <p class="text-sm text-green-700 font-semibold">Due: ${task.dueDate} - ID: ${task.id}</p>
+                        <p class="text-lg font-medium text-gray-900 mt-1">${task.task} - <span class="font-bold ${statusColorClass}">${task.status}</span></p>
+                        <p class="text-gray-700 text-sm mt-1">${task.details}</p>
+                        <button class="mt-2 text-yellow-600 hover:underline text-sm">View Details / Update Status</button>
+                    `;
+                    maintenanceList.appendChild(li);
+                });
+            }
+        }
+
+        function renderDefectList() {
+            defectList.innerHTML = ''; // Clear previous content
+            if (defects.length === 0) {
+                defectList.innerHTML = '<p class="text-gray-600 italic">No defects logged yet.</p>';
+            } else {
+                defects.forEach(defect => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-red-50 p-4 rounded-lg shadow-sm border border-red-100 flex items-start space-x-4';
+                    const photoHtml = defect.photo ? `<img src="${defect.photo}" alt="Defect" class="w-24 h-20 object-cover rounded-md flex-shrink-0" />` : '';
+                    const severityColorClass = defect.severity === 'High' || defect.severity === 'Critical' ? 'text-red-600' : defect.severity === 'Medium' ? 'text-orange-600' : 'text-green-600';
+                    const locationHtml = defect.locationWithinSite ? `<p class="text-gray-600 text-xs mt-1">Location: ${defect.locationWithinSite}</p>` : '';
+                    li.innerHTML = `
+                        ${photoHtml}
+                        <div class="flex-grow">
+                            <p class="text-sm text-red-700 font-semibold">${defect.date} - ID: ${defect.id}</p>
+                            <p class="text-lg font-medium text-gray-900 mt-1">${defect.type} - <span class="font-bold ${severityColorClass}">${defect.severity}</span></p>
+                            <p class="text-gray-700 text-sm mt-1">${defect.description}</p>
+                            ${locationHtml}
+                        </div>
+                    `;
+                    defectList.appendChild(li);
+                });
+            }
+        }
+
+        // --- Event Listeners and Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial mock data setup
+            siteHistory = [
+                { date: '2025-03-20', event: 'Concrete Slab Poured', details: 'Successfully poured the concrete slab for the shed.' },
+                { date: '2025-04-05', event: 'Internal Plaster Setting', details: 'Commenced internal plaster setting and painting.' },
+                { date: '2025-04-15', event: 'Main Electrical Board Installed', details: 'Installation of the main electrical board completed.' },
+                { date: '2025-05-01', event: 'Vinyl Flooring Commenced', details: 'Laying of vinyl flooring started in main areas.' },
+                { date: '2025-05-10', event: 'Kitchen Roller Shutters Installed', details: 'Kitchen roller shutters and stainless steel wall sheeting installed.' },
+                { date: '2025-05-20', event: 'Pathway Preparation Delayed', details: 'Ongoing wet conditions delayed pathway preparation.' },
+            ];
+            defects = [
+                { id: 'D001', type: 'Electrical', description: 'Faulty light switch in main hall.', severity: 'Medium', date: '2025-05-22', photo: 'https://placehold.co/150x100/FF0000/FFFFFF?text=Defect+1' },
+                { id: 'D002', type: 'Surface', description: 'Cracked paving near entrance.', severity: 'Low', date: '2025-05-20', photo: 'https://placehold.co/150x100/0000FF/FFFFFF?text=Defect+2' },
+            ];
+            maintenanceTasks = [
+                { id: 'WM001', task: 'Annual HVAC Unit A Inspection', status: 'Assigned', dueDate: '2025-06-10', details: 'Check filters, refrigerant levels, and fan operation.' },
+                { id: 'WM002', task: 'Fire Extinguisher Check', status: 'Pending', dueDate: '2025-07-01', details: 'Verify all fire extinguishers are in date and accessible.' },
+                { id: 'WM003', task: 'Roof Gutter Cleaning', status: 'Completed', dueDate: '2025-05-15', details: 'Cleared debris from all roof gutters.' },
+            ];
+
+            renderDefectList(); // Render initial defect list
+
+            // Event listeners for main action buttons
+            document.querySelectorAll('#actionListView button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const view = event.currentTarget.dataset.actionView;
+                    renderView(view);
+                });
+            });
+
+            // Event listeners for horizontal navigation buttons
+            document.querySelectorAll('#navigationView button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const view = event.currentTarget.dataset.view;
+                    renderView(view);
+                });
+            });
+
+            // Photo input change listener
+            photoInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        photoPreview.src = e.target.result;
+                        photoPreviewContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    photoPreview.src = '#';
+                    photoPreviewContainer.classList.add('hidden');
+                }
+            });
+
+            // Defect form submission
+            defectForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const defectType = document.getElementById('defectType').value;
+                const description = document.getElementById('description').value;
+                const severity = document.getElementById('severity').value;
+                const locationWithinSite = document.getElementById('locationWithinSite').value;
+                const photoFile = document.getElementById('photo').files[0];
+
+                if (!defectType || !description) {
+                    openModal('Please fill in all required fields (Defect Type, Description).');
+                    return;
+                }
+
+                openModal('Submitting defect...');
+
+                try {
+                    // Simulate API call (replace with actual fetch to your backend)
+                    // In a real app, you'd upload the photo and get its URL/ID
+                    const photoUrl = photoFile ? URL.createObjectURL(photoFile) : ''; // For mockup, use local URL
+
+                    const newDefect = {
+                        id: `D${String(defects.length + 1).padStart(3, '0')}`,
+                        type: defectType,
+                        description,
+                        severity,
+                        date: new Date().toISOString().split('T')[0],
+                        locationWithinSite: locationWithinSite,
+                        photo: photoUrl
+                    };
+
+                    // Simulate network delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    defects.push(newDefect); // Add to local data
+                    renderDefectList(); // Re-render the defect list
+
+                    openModal('Defect logged successfully!');
+                    // Reset form
+                    defectForm.reset();
+                    photoPreview.src = '#';
+                    photoPreviewContainer.classList.add('hidden');
+                } catch (error) {
+                    console.error('Error logging defect:', error);
+                    openModal('An error occurred while logging the defect.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
