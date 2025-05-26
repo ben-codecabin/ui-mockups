@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ipswich City Council AMIS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0; /* Light gray */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Tailwind gray-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* Tailwind gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 antialiased">
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        <aside class="w-full lg:w-64 bg-[#005238] text-white p-6 flex flex-col items-center lg:items-start shadow-xl lg:shadow-none">
+            <div class="mb-8 text-center lg:text-left">
+                <img src="https://www.ipswich.qld.gov.au/__data/assets/file/0006/120948/icc-stacked.svg" alt="Ipswich City Council Logo" class="h-20 w-auto mb-4 mx-auto lg:mx-0" onerror="this.onerror=null;this.src='https://placehold.co/120x40/000000/FFFFFF?text=Logo';" />
+                <h1 class="text-2xl font-bold">AMIS Dashboard</h1>
+            </div>
+
+            <nav class="w-full">
+                <ul class="space-y-3">
+                    <li>
+                        <a href="#" data-nav="dashboard" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold active-nav">
+                            <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-nav="assets" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold">
+                            <i class="fas fa-city mr-3"></i> Assets
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-nav="defects" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold">
+                            <i class="fas fa-exclamation-triangle mr-3"></i> Defects
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-nav="maintenance" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold">
+                            <i class="fas fa-tools mr-3"></i> Maintenance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-nav="reporting" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold">
+                            <i class="fas fa-chart-line mr-3"></i> Reporting
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-nav="users" class="flex items-center px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white hover:text-[#005238] font-semibold">
+                            <i class="fas fa-users-cog mr-3"></i> Users & Admin
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto pt-8 w-full text-center lg:text-left border-t border-gray-700 lg:border-none">
+                <div class="flex items-center justify-center lg:justify-start">
+                    <img src="https://placehold.co/40x40/fdb913/000000?text=JD" alt="User Avatar" class="rounded-full mr-3 border-2 border-[#fdb913]" />
+                    <div>
+                        <p class="font-semibold text-lg">John Doe</p>
+                        <p class="text-sm opacity-80">Admin User</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-grow p-6 bg-gray-50 overflow-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-[#005238] text-xl">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="text-gray-600 hover:text-[#005238] text-xl">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+
+            <section id="dashboardContent" class="space-y-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Asset Locations & Defect Hotspots</h3>
+                    <div class="w-full h-80 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-lg italic">
+                        <i class="fas fa-map-marked-alt mr-2"></i> Interactive Esri Map Integration (e.g., ArcGIS API for JavaScript)
+                        <br>
+                        (Showing assets, open defects, maintenance areas)
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-[#005238]">
+                        <p class="text-sm text-gray-600 font-semibold mb-2">Total Assets Managed</p>
+                        <p class="text-4xl font-bold text-[#005238]" id="totalAssets">--</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-[#fdb913]">
+                        <p class="text-sm text-gray-600 font-semibold mb-2">Open Defects</p>
+                        <p class="text-4xl font-bold text-[#fdb913]" id="openDefects">--</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center border-b-4 border-blue-600">
+                        <p class="text-sm text-gray-600 font-semibold mb-2">Upcoming Maintenance</p>
+                        <p class="text-4xl font-bold text-blue-600" id="upcomingMaintenance">--</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Recent Open Defects</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reported Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="openDefectsTableBody" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right mt-4">
+                        <a href="#" data-nav="defects" class="text-[#fdb913] hover:underline font-semibold">View All Defects <i class="fas fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-blue-200">Upcoming Scheduled Maintenance</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="upcomingMaintenanceTableBody" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right mt-4">
+                        <a href="#" data-nav="maintenance" class="text-blue-600 hover:underline font-semibold">View All Maintenance <i class="fas fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="assetsContent" class="hidden bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800">Assets Management</h3>
+                <p class="text-gray-600 mt-2">Detailed asset register and management tools would go here.</p>
+            </section>
+            <section id="defectsContent" class="hidden bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800">Defects Management</h3>
+                <p class="text-gray-600 mt-2">Comprehensive list and management of all defects would go here.</p>
+            </section>
+            <section id="maintenanceContent" class="hidden bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800">Maintenance Management</h3>
+                <p class="text-gray-600 mt-2">Tools for scheduling, assigning, and tracking maintenance would go here.</p>
+            </section>
+            <section id="reportingContent" class="hidden bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800">Reporting & Analytics</h3>
+                <p class="text-gray-600 mt-2">Integration with Power BI dashboards and custom reports would go here.</p>
+            </section>
+            <section id="usersContent" class="hidden bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800">Users & Admin Settings</h3>
+                <p class="text-gray-600 mt-2">User management, roles, permissions, and system settings would go here.</p>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // --- Global State and Data ---
+        let currentAdminView = 'dashboard';
+
+        const mockAssets = [
+            { id: 'A001', name: 'Silver Jubilee Sports Field Club', type: 'Building', suburb: 'Spring Mountain', status: 'Operational' },
+            { id: 'A002', name: 'Main Oval Lighting System', type: 'Electrical', suburb: 'Spring Mountain', status: 'Operational' },
+            { id: 'A003', name: 'Pathway Section North', type: 'Paving', suburb: 'Spring Mountain', status: 'Under Repair' },
+            { id: 'A004', name: 'Water Tank 1', type: 'Plumbing', suburb: 'Spring Mountain', status: 'Operational' },
+            { id: 'A005', name: 'Playground Equipment Area 1', type: 'Recreational', suburb: 'Spring Mountain', status: 'Operational' },
+        ];
+
+        const mockOpenDefects = [
+            { id: 'D001', asset: 'Silver Jubilee Sports Field Club', type: 'Electrical', description: 'Faulty light switch in main hall.', severity: 'Medium', reportedDate: '2025-05-22', status: 'Open' },
+            { id: 'D002', asset: 'Pathway Section North', type: 'Surface', description: 'Cracked paving near entrance.', severity: 'Low', reportedDate: '2025-05-20', status: 'Open' },
+            { id: 'D003', asset: 'Main Oval Lighting System', type: 'Electrical', description: 'One light pole not illuminating.', severity: 'High', reportedDate: '2025-05-25', status: 'Open' },
+            { id: 'D004', asset: 'Silver Jubilee Sports Field Club', type: 'Plumbing', description: 'Leaky faucet in men\'s restroom.', severity: 'Low', reportedDate: '2025-05-24', status: 'Open' },
+        ];
+
+        const mockUpcomingMaintenance = [
+            { id: 'WM001', asset: 'Silver Jubilee Sports Field Club', task: 'Annual HVAC Unit A Inspection', dueDate: '2025-06-10', status: 'Assigned' },
+            { id: 'WM002', asset: 'Water Tank 1', task: 'Water Quality Check', dueDate: '2025-06-15', status: 'Pending' },
+            { id: 'WM003', asset: 'Playground Equipment Area 1', task: 'Safety Inspection', dueDate: '2025-06-20', status: 'Pending' },
+            { id: 'WM004', asset: 'Silver Jubilee Sports Field Club', task: 'Fire Extinguisher Check', dueDate: '2025-07-01', status: 'Pending' },
+        ];
+
+        // --- DOM Element References ---
+        const navLinks = document.querySelectorAll('nav a');
+        const contentSections = document.querySelectorAll('main section');
+
+        const totalAssetsDisplay = document.getElementById('totalAssets');
+        const openDefectsDisplay = document.getElementById('openDefects');
+        const upcomingMaintenanceDisplay = document.getElementById('upcomingMaintenance');
+
+        const openDefectsTableBody = document.getElementById('openDefectsTableBody');
+        const upcomingMaintenanceTableBody = document.getElementById('upcomingMaintenanceTableBody');
+
+        // --- Utility Functions ---
+        function renderAdminView(viewName) {
+            // Hide all content sections
+            contentSections.forEach(section => section.classList.add('hidden'));
+
+            // Show the requested section
+            document.getElementById(`${viewName}Content`).classList.remove('hidden');
+
+            // Update active state of navigation links
+            navLinks.forEach(link => {
+                if (link.dataset.nav === viewName) {
+                    link.classList.add('bg-white', 'text-[#005238]', 'active-nav');
+                    link.classList.remove('hover:bg-white', 'hover:text-[#005238]');
+                } else {
+                    link.classList.remove('bg-white', 'text-[#005238]', 'active-nav');
+                    link.classList.add('hover:bg-white', 'hover:text-[#005238]');
+                }
+            });
+
+            currentAdminView = viewName; // Update global state
+        }
+
+        function populateDashboard() {
+            // Summary Cards
+            totalAssetsDisplay.textContent = mockAssets.length;
+            openDefectsDisplay.textContent = mockOpenDefects.length;
+            upcomingMaintenanceDisplay.textContent = mockUpcomingMaintenance.length;
+
+            // Recent Open Defects Table
+            openDefectsTableBody.innerHTML = '';
+            mockOpenDefects.slice(0, 5).forEach(defect => { // Show top 5 for dashboard
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                const severityColorClass = defect.severity === 'High' || defect.severity === 'Critical' ? 'text-red-600 font-semibold' : defect.severity === 'Medium' ? 'text-orange-600' : 'text-green-600';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${defect.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${defect.asset}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${defect.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${defect.description}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${severityColorClass}">${defect.severity}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${defect.reportedDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${defect.status}</td>
+                `;
+                openDefectsTableBody.appendChild(row);
+            });
+
+            // Upcoming Scheduled Maintenance Table
+            upcomingMaintenanceTableBody.innerHTML = '';
+            mockUpcomingMaintenance.slice(0, 5).forEach(task => { // Show top 5 for dashboard
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                const statusColorClass = task.status === 'Completed' ? 'text-green-600' : task.status === 'Assigned' ? 'text-orange-600' : 'text-blue-600';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${task.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${task.asset}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${task.task}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${task.dueDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColorClass}">${task.status}</td>
+                `;
+                upcomingMaintenanceTableBody.appendChild(row);
+            });
+        }
+
+        // --- Event Listeners and Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial view to dashboard
+            renderAdminView('dashboard');
+            populateDashboard();
+
+            // Add event listeners to navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent default link behavior
+                    renderAdminView(event.currentTarget.dataset.nav);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
