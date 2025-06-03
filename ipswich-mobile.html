@@ -40,17 +40,17 @@
             </div>
         </header>
 
-        <nav id="navigationView" class="hidden flex flex-wrap justify-center bg-gray-100 p-3 rounded-b-xl shadow-md space-x-2 md:space-x-4">
-            <button data-view="history" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+        <nav id="navigationView" class="hidden flex flex-nowrap justify-center bg-gray-100 p-3 rounded-b-xl shadow-md space-x-0.5 md:space-x-4 overflow-x-auto">
+            <button data-view="history" class="flex-shrink-0 px-1 py-0.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
                 Site History
             </button>
-            <button data-view="log_defect" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
-                Log New Defect
+            <button data-view="complete_inspection" class="flex-shrink-0 px-1 py-0.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+                Complete Inspection
             </button>
-            <button data-view="scheduled_maintenance" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+            <button data-view="scheduled_maintenance" class="flex-shrink-0 px-1 py-0.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
                 Scheduled Maintenance
             </button>
-            <button data-view="more_actions" class="px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
+            <button data-view="more_actions" class="flex-shrink-0 px-1 py-0.5 md:px-6 md:py-3 rounded-lg font-semibold text-xs md:text-base transition-all duration-300 ease-in-out bg-white text-gray-700 hover:bg-yellow-100">
                 More Actions
             </button>
         </nav>
@@ -63,8 +63,8 @@
                         <span><i class="fas fa-history mr-3"></i> View Site History</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
-                    <button data-action-view="log_defect" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
-                        <span><i class="fas fa-exclamation-triangle mr-3"></i> Log a Defect</span>
+                    <button data-action-view="complete_inspection" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
+                        <span><i class="fas fa-clipboard-check mr-3"></i> Complete Inspection</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
                     <button data-action-view="scheduled_maintenance" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors text-lg md:text-xl py-5">
@@ -84,60 +84,12 @@
                     </ul>
             </div>
 
-            <div id="logDefectView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
-                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200">Log New Defect</h3>
-                <form id="defectForm" class="space-y-4">
-                    <div>
-                        <label for="assetName" class="block text-sm font-medium text-gray-700 mb-1">Asset Name</label>
-                        <input type="text" id="assetName" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" value="Silver Jubilee Sports Field Clubhouse" readonly />
-                        <p class="text-xs text-gray-500 mt-1">This field is pre-filled for the current site.</p>
-                    </div>
-                    <div>
-                        <label for="defectType" class="block text-sm font-medium text-gray-700 mb-1">Defect Type <span class="text-red-500">*</span></label>
-                        <select id="defectType" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" required>
-                            <option value="">Select a type</option>
-                            <option value="Structural">Structural</option>
-                            <option value="Electrical">Electrical</option>
-                            <option value="Plumbing">Plumbing</option>
-                            <option value="Surface">Surface (e.g., path, wall)</option>
-                            <option value="HVAC">HVAC</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
-                        <textarea id="description" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" required></textarea>
-                        <p class="text-xs text-gray-500 mt-1">
-                            <i class="fas fa-microphone mr-1"></i> Consider voice-to-text integration for easier input.
-                        </p>
-                    </div>
-                    <div>
-                        <label for="locationWithinSite" class="block text-sm font-medium text-gray-700 mb-1">Location within Site (e.g., "North-East Corner", "Kitchen HVAC Unit")</label>
-                        <input type="text" id="locationWithinSite" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" placeholder="e.g., Main Hall, HVAC Unit A" />
-                        <p class="text-xs text-gray-500 mt-1">
-                            <i class="fas fa-map-marker-alt mr-1"></i> In a real app, this could be a GPS capture or map selection.
-                        </p>
-                    </div>
-                    <div>
-                        <label for="severity" class="block text-sm font-medium text-gray-700 mb-1">Severity</label>
-                        <select id="severity" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm">
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                            <option value="Critical">Critical</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="photo" class="block text-sm font-medium text-gray-700 mb-1">Attach Photo</label>
-                        <input type="file" id="photo" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100" />
-                        <div id="photoPreviewContainer" class="mt-2 hidden">
-                            <img id="photoPreview" src="#" alt="Defect Preview" class="w-32 h-24 object-cover rounded-md shadow-sm" />
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-[#fdb913] text-gray-900 py-3 px-4 rounded-lg font-semibold shadow-lg hover:bg-yellow-500 transition-colors duration-300 ease-in-out">
-                        Submit Defect
-                    </button>
-                </form>
+            <div id="completeInspectionView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6 text-center">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 pb-2 border-yellow-200">Complete Inspection</h3>
+                <p class="text-gray-600 mb-8">Start a new inspection for the Silver Jubilee Sports Field Club.</p>
+                <button id="startInspectionBtn" class="bg-[#005238] text-white py-4 px-8 rounded-lg font-bold text-xl shadow-lg hover:bg-green-700 transition-colors duration-300 ease-in-out">
+                    Start Inspection
+                </button>
             </div>
 
             <div id="scheduledMaintenanceView" class="hidden p-6 bg-white rounded-lg shadow-md mt-6">
@@ -165,11 +117,11 @@
                         <span><i class="fas fa-exclamation-triangle mr-3"></i> Safety Information / Site Hazards</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
-                    <button onclick="openModal('Simulating calling the Site Manager (Kelly Bourke).')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                    <button onclick="openModal('Simulating calling the Site Manager.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
                         <span><i class="fas fa-phone mr-3"></i> Call Site Manager</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
-                    <button onclick="openModal('Simulating emailing the Site Manager (Kelly Bourke).')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
+                    <button onclick="openModal('Simulating emailing the Site Manager.')" class="w-full flex items-center justify-between bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-100 text-gray-800 font-medium hover:bg-yellow-100 transition-colors">
                         <span><i class="fas fa-envelope mr-3"></i> Email Site Manager</span>
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -194,34 +146,66 @@
                 </button>
             </div>
         </div>
+
+        <div id="inspectionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 p-4 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto flex flex-col relative">
+                <button onclick="closeInspectionModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 pb-2 border-yellow-200" id="inspectionModalTitle">Complete Inspection</h3>
+                <div id="inspectionStepContent" class="flex-grow space-y-4 mb-6">
+                    </div>
+                <div class="flex justify-between items-center border-t-2 pt-4">
+                    <button id="prevInspectionBtn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i> Previous
+                    </button>
+                    <span id="inspectionProgress" class="text-sm text-gray-600">Step 1 of X</span>
+                    <button id="nextInspectionBtn" class="bg-[#fdb913] text-gray-900 py-2 px-4 rounded-md hover:bg-yellow-500 transition-colors duration-300">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                    <button id="submitInspectionBtn" class="hidden bg-[#005238] text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-300">
+                        Submit Inspection <i class="fas fa-check-circle ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // --- Global State and Data ---
-        let currentView = 'main_actions'; // 'main_actions', 'history', 'log_defect', 'scheduled_maintenance', 'more_actions'
+        let currentView = 'main_actions'; // 'main_actions', 'history', 'complete_inspection', 'scheduled_maintenance', 'more_actions'
         let siteHistory = [];
         let defects = [];
         let maintenanceTasks = [];
+
+        let inspectionSteps = []; // Array to hold inspection parts and their collected data
+        let currentInspectionStepIndex = 0;
 
         // --- DOM Element References ---
         const navigationView = document.getElementById('navigationView');
         const actionListView = document.getElementById('actionListView');
         const siteHistoryView = document.getElementById('siteHistoryView');
-        const logDefectView = document.getElementById('logDefectView');
+        const completeInspectionView = document.getElementById('completeInspectionView'); // New inspection view
         const scheduledMaintenanceView = document.getElementById('scheduledMaintenanceView');
         const moreActionsView = document.getElementById('moreActionsView');
-        const defectListContainer = document.getElementById('defectListContainer'); // Container for logged defects list
+        const defectListContainer = document.getElementById('defectListContainer'); 
 
         const historyList = document.getElementById('historyList');
-        const defectForm = document.getElementById('defectForm');
-        const photoInput = document.getElementById('photo');
-        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
-        const photoPreview = document.getElementById('photoPreview');
         const maintenanceList = document.getElementById('maintenanceList');
-        const defectList = document.getElementById('defectList'); // Ul for defects
+        const defectList = document.getElementById('defectList'); 
 
         const appModal = document.getElementById('appModal');
         const modalMessage = document.getElementById('modalMessage');
+
+        const inspectionModal = document.getElementById('inspectionModal');
+        const inspectionModalTitle = document.getElementById('inspectionModalTitle');
+        const inspectionStepContent = document.getElementById('inspectionStepContent');
+        const prevInspectionBtn = document.getElementById('prevInspectionBtn');
+        const nextInspectionBtn = document.getElementById('nextInspectionBtn');
+        const submitInspectionBtn = document.getElementById('submitInspectionBtn');
+        const inspectionProgress = document.getElementById('inspectionProgress');
+        const startInspectionBtn = document.getElementById('startInspectionBtn'); // Button to open inspection modal
+
 
         // --- Utility Functions ---
         function openModal(message) {
@@ -237,7 +221,7 @@
         function renderView(viewName) {
             // Hide all content views
             siteHistoryView.classList.add('hidden');
-            logDefectView.classList.add('hidden');
+            completeInspectionView.classList.add('hidden'); // New inspection view
             scheduledMaintenanceView.classList.add('hidden');
             moreActionsView.classList.add('hidden');
             defectListContainer.classList.add('hidden'); // Always hide/show defect list explicitly
@@ -249,25 +233,27 @@
             } else {
                 actionListView.classList.add('hidden');
                 navigationView.classList.remove('hidden');
-                // Show defect list below specific views if not main_actions
-                defectListContainer.classList.remove('hidden');
             }
 
-            // Show the requested view
+            // Show the requested view and decide if defect list should show
             switch (viewName) {
                 case 'history':
                     siteHistoryView.classList.remove('hidden');
+                    defectListContainer.classList.remove('hidden'); // Show defects on history page
                     renderSiteHistory();
                     break;
-                case 'log_defect':
-                    logDefectView.classList.remove('hidden');
+                case 'complete_inspection':
+                    completeInspectionView.classList.remove('hidden');
+                    defectListContainer.classList.remove('hidden'); // Show defects on complete inspection page
                     break;
                 case 'scheduled_maintenance':
                     scheduledMaintenanceView.classList.remove('hidden');
+                    // defectListContainer remains hidden for this view
                     renderScheduledMaintenance();
                     break;
                 case 'more_actions':
                     moreActionsView.classList.remove('hidden');
+                    // defectListContainer remains hidden for this view
                     break;
             }
 
@@ -335,6 +321,9 @@
                     const photoHtml = defect.photo ? `<img src="${defect.photo}" alt="Defect" class="w-24 h-20 object-cover rounded-md flex-shrink-0" />` : '';
                     const severityColorClass = defect.severity === 'High' || defect.severity === 'Critical' ? 'text-red-600' : defect.severity === 'Medium' ? 'text-orange-600' : 'text-green-600';
                     const locationHtml = defect.locationWithinSite ? `<p class="text-gray-600 text-xs mt-1">Location: ${defect.locationWithinSite}</p>` : '';
+                    const tagsHtml = defect.tags && defect.tags.length > 0 ?
+                        `<div class="mt-1 flex flex-wrap gap-1">${defect.tags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">${tag}</span>`).join('')}</div>` : '';
+
                     li.innerHTML = `
                         ${photoHtml}
                         <div class="flex-grow">
@@ -342,6 +331,7 @@
                             <p class="text-lg font-medium text-gray-900 mt-1">${defect.type} - <span class="font-bold ${severityColorClass}">${defect.severity}</span></p>
                             <p class="text-gray-700 text-sm mt-1">${defect.description}</p>
                             ${locationHtml}
+                            ${tagsHtml}
                         </div>
                     `;
                     defectList.appendChild(li);
@@ -349,21 +339,167 @@
             }
         }
 
+        // --- Inspection Modal Functions ---
+        function openInspectionModal() {
+            inspectionModal.classList.remove('hidden');
+            currentInspectionStepIndex = 0;
+            // Initialize inspection steps with default values or previous saved data
+            inspectionSteps = [
+                { part: 'Roof', condition: '', photo: '' },
+                { part: 'Exterior Walls', condition: '', photo: '' },
+                { part: 'Doors & Windows', condition: '', photo: '' },
+                { part: 'Internal Structure', condition: '', photo: '' },
+                { part: 'Electrical Systems', condition: '', photo: '' },
+                { part: 'Plumbing & Drainage', condition: '', photo: '' },
+                { part: 'HVAC System', condition: '', photo: '' },
+                { part: 'Flooring', condition: '', photo: '' },
+                { part: 'Site Grounds/Landscaping', condition: '', photo: '' },
+                { part: 'Playground Equipment (if applicable)', condition: '', photo: '' }
+            ];
+            renderInspectionStep();
+        }
+
+        function closeInspectionModal() {
+            inspectionModal.classList.add('hidden');
+            // Optionally clear inspection data or save draft here
+        }
+
+        function renderInspectionStep() {
+            const step = inspectionSteps[currentInspectionStepIndex];
+            inspectionModalTitle.textContent = `Inspect: ${step.part}`;
+            inspectionStepContent.innerHTML = `
+                <div>
+                    <label for="conditionInput" class="block text-sm font-medium text-gray-700 mb-1">Condition of ${step.part}</label>
+                    <textarea id="conditionInput" rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#fdb913] focus:border-[#fdb913] sm:text-sm" placeholder="Describe the condition...">${step.condition}</textarea>
+                </div>
+                <div class="mt-2 flex flex-wrap gap-2">
+                    <button type="button" class="quick-response-btn bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">Good condition</button>
+                    <button type="button" class="quick-response-btn bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">Meets standards</button>
+                    <button type="button" class="quick-response-btn bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">Minor defect detected</button>
+                    <button type="button" class="quick-response-btn bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">Requires immediate attention</button>
+                    <button type="button" class="quick-response-btn bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">N/A</button>
+                </div>
+                <div>
+                    <label for="inspectionPhotoInput" class="block text-sm font-medium text-gray-700 mb-1">Attach Photo for ${step.part}</label>
+                    <input type="file" id="inspectionPhotoInput" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100" />
+                    <div id="inspectionPhotoPreviewContainer" class="mt-2 ${step.photo ? '' : 'hidden'}">
+                        <img id="inspectionPhotoPreview" src="${step.photo || '#'}" alt="Photo Preview" class="w-32 h-24 object-cover rounded-md shadow-sm" />
+                    </div>
+                </div>
+            `;
+
+            // Update progress text
+            inspectionProgress.textContent = `Step ${currentInspectionStepIndex + 1} of ${inspectionSteps.length}`;
+
+            // Update button visibility
+            prevInspectionBtn.classList.toggle('hidden', currentInspectionStepIndex === 0);
+            nextInspectionBtn.classList.toggle('hidden', currentInspectionStepIndex === inspectionSteps.length - 1);
+            submitInspectionBtn.classList.toggle('hidden', currentInspectionStepIndex !== inspectionSteps.length - 1);
+
+            // Add event listener for photo input in the current step
+            document.getElementById('inspectionPhotoInput').addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                const previewImg = document.getElementById('inspectionPhotoPreview');
+                const previewContainer = document.getElementById('inspectionPhotoPreviewContainer');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                        inspectionSteps[currentInspectionStepIndex].photo = e.target.result; // Store base64 for mockup
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.src = '#';
+                    previewContainer.classList.add('hidden');
+                    inspectionSteps[currentInspectionStepIndex].photo = '';
+                }
+            });
+
+            // Add event listener for condition input
+            const conditionInput = document.getElementById('conditionInput');
+            conditionInput.addEventListener('input', (event) => {
+                inspectionSteps[currentInspectionStepIndex].condition = event.target.value;
+            });
+
+            // Add event listeners for quick response buttons
+            document.querySelectorAll('.quick-response-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    conditionInput.value = event.target.textContent;
+                    inspectionSteps[currentInspectionStepIndex].condition = event.target.textContent;
+                });
+            });
+        }
+
+        function goToNextInspectionStep() {
+            // Save current step's data before moving
+            const conditionInput = document.getElementById('conditionInput');
+            if (conditionInput) {
+                inspectionSteps[currentInspectionStepIndex].condition = conditionInput.value;
+            }
+            // Photo is saved directly in the change listener
+
+            if (currentInspectionStepIndex < inspectionSteps.length - 1) {
+                currentInspectionStepIndex++;
+                renderInspectionStep();
+            }
+        }
+
+        function goToPrevInspectionStep() {
+            // Save current step's data before moving
+            const conditionInput = document.getElementById('conditionInput');
+            if (conditionInput) {
+                inspectionSteps[currentInspectionStepIndex].condition = conditionInput.value;
+            }
+            // Photo is saved directly in the change listener
+
+            if (currentInspectionStepIndex > 0) {
+                currentInspectionStepIndex--;
+                renderInspectionStep();
+            }
+        }
+
+        async function submitInspection() {
+            // Save data for the last step
+            const conditionInput = document.getElementById('conditionInput');
+            if (conditionInput) {
+                inspectionSteps[currentInspectionStepIndex].condition = conditionInput.value;
+            }
+
+            openModal('Submitting inspection data...');
+            try {
+                // In a real application, you would send inspectionSteps data to your AMIS backend.
+                // This would involve iterating through inspectionSteps, uploading photos, and saving text data.
+                console.log('Final Inspection Data:', inspectionSteps);
+
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
+
+                openModal('Inspection submitted successfully!');
+                closeInspectionModal();
+                renderView('main_actions'); // Go back to main actions after submission
+            } catch (error) {
+                console.error('Error submitting inspection:', error);
+                openModal('An error occurred during inspection submission.');
+            }
+        }
+
         // --- Event Listeners and Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Initial mock data setup
             siteHistory = [
                 { date: '2025-03-20', event: 'Concrete Slab Poured', details: 'Successfully poured the concrete slab for the shed.' },
                 { date: '2025-04-05', event: 'Internal Plaster Setting', details: 'Commenced internal plaster setting and painting.' },
                 { date: '2025-04-15', event: 'Main Electrical Board Installed', details: 'Installation of the main electrical board completed.' },
-                { date: '2025-05-01', event: 'Vinyl Flooring Commenced', details: 'Laying of vinyl flooring started in main areas.' },
-                { date: '2025-05-10', event: 'Kitchen Roller Shutters Installed', details: 'Kitchen roller shutters and stainless steel wall sheeting installed.' },
-                { date: '2025-05-20', event: 'Pathway Preparation Delayed', details: 'Ongoing wet conditions delayed pathway preparation.' },
+                { date: '2025-05-25', event: 'Completed general safety inspection', details: 'Full safety audit conducted, all areas compliant.' },
+                { date: '2025-05-28', event: 'Tagged and tested all appliances', details: 'All electrical appliances inspected and tagged.' },
             ];
+            
             defects = [
-                { id: 'D001', type: 'Electrical', description: 'Faulty light switch in main hall.', severity: 'Medium', date: '2025-05-22', photo: 'https://placehold.co/150x100/FF0000/FFFFFF?text=Defect+1' },
-                { id: 'D002', type: 'Surface', description: 'Cracked paving near entrance.', severity: 'Low', date: '2025-05-20', photo: 'https://placehold.co/150x100/0000FF/FFFFFF?text=Defect+2' },
+                { id: 'D001', type: 'Electrical', description: 'Faulty light switch in main hall.', severity: 'Medium', date: '2025-05-22', photo: 'https://www.handymansingapore.com.sg/wp-content/uploads/2024/11/How-to-Fix-a-Broken-Light-Switch-A-Handymans-Guide.jpg', tags: ['Scheduled'] },
+                { id: 'D002', type: 'Surface', description: 'Cracked paving near entrance.', severity: 'Low', date: '2025-05-20', photo: 'https://waterstopsolutions.com.au/wp-content/uploads/2019/06/crack-outside-of-control-joint-300x225.jpg' },
             ];
+
             maintenanceTasks = [
                 { id: 'WM001', task: 'Annual HVAC Unit A Inspection', status: 'Assigned', dueDate: '2025-06-10', details: 'Check filters, refrigerant levels, and fan operation.' },
                 { id: 'WM002', task: 'Fire Extinguisher Check', status: 'Pending', dueDate: '2025-07-01', details: 'Verify all fire extinguishers are in date and accessible.' },
@@ -388,70 +524,13 @@
                 });
             });
 
-            // Photo input change listener
-            photoInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        photoPreview.src = e.target.result;
-                        photoPreviewContainer.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    photoPreview.src = '#';
-                    photoPreviewContainer.classList.add('hidden');
-                }
-            });
+            // Event listener for "Start Inspection" button
+            startInspectionBtn.addEventListener('click', openInspectionModal);
 
-            // Defect form submission
-            defectForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-
-                const defectType = document.getElementById('defectType').value;
-                const description = document.getElementById('description').value;
-                const severity = document.getElementById('severity').value;
-                const locationWithinSite = document.getElementById('locationWithinSite').value;
-                const photoFile = document.getElementById('photo').files[0];
-
-                if (!defectType || !description) {
-                    openModal('Please fill in all required fields (Defect Type, Description).');
-                    return;
-                }
-
-                openModal('Submitting defect...');
-
-                try {
-                    // Simulate API call (replace with actual fetch to your backend)
-                    // In a real app, you'd upload the photo and get its URL/ID
-                    const photoUrl = photoFile ? URL.createObjectURL(photoFile) : ''; // For mockup, use local URL
-
-                    const newDefect = {
-                        id: `D${String(defects.length + 1).padStart(3, '0')}`,
-                        type: defectType,
-                        description,
-                        severity,
-                        date: new Date().toISOString().split('T')[0],
-                        locationWithinSite: locationWithinSite,
-                        photo: photoUrl
-                    };
-
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    defects.push(newDefect); // Add to local data
-                    renderDefectList(); // Re-render the defect list
-
-                    openModal('Defect logged successfully!');
-                    // Reset form
-                    defectForm.reset();
-                    photoPreview.src = '#';
-                    photoPreviewContainer.classList.add('hidden');
-                } catch (error) {
-                    console.error('Error logging defect:', error);
-                    openModal('An error occurred while logging the defect.');
-                }
-            });
+            // Event listeners for inspection modal navigation
+            prevInspectionBtn.addEventListener('click', goToPrevInspectionStep);
+            nextInspectionBtn.addEventListener('click', goToNextInspectionStep);
+            submitInspectionBtn.addEventListener('click', submitInspection);
         });
     </script>
 </body>
