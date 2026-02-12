@@ -486,7 +486,7 @@
         <div class="divider"></div>
 
         <!-- Buyer Qualification -->
-        <div class="section-label">About You</div>
+        <div class="section-label">Buyer Qualification</div>
 
         <div class="budget-row">
           <div class="field">
@@ -508,23 +508,49 @@
 
         <div class="field-row single" style="margin-bottom: 14px;">
           <div class="field">
-            <label>Timeline<span class="req">*</span></label>
-            <select onchange="this.classList.toggle('selected', this.selectedIndex > 0)">
-              <option value="">When are you looking to buy?</option>
-              <option>Immediately</option>
-              <option>1 – 3 months</option>
-              <option>3 – 6 months</option>
-              <option>6 – 12 months</option>
-              <option>12+ months</option>
-              <option>Just researching</option>
-            </select>
+            <label>Tell us about yourself<span class="req">*</span></label>
+            <textarea placeholder="A bit about your background, experience, and what attracted you to this opportunity..."></textarea>
           </div>
         </div>
 
-        <div class="field-row single">
+        <div class="field-row single" style="margin-bottom: 14px;">
           <div class="field">
-            <label>Tell us about yourself<span class="req">*</span></label>
-            <textarea placeholder="A bit about your background, experience, and what attracted you to this opportunity..."></textarea>
+            <label>Acquisition criteria<span class="req">*</span></label>
+            <textarea placeholder="What type of business are you looking to buy? Include details like industry, size, location preferences..." style="min-height: 72px;"></textarea>
+          </div>
+        </div>
+
+        <div class="field-row single" style="margin-bottom: 14px;">
+          <div class="field">
+            <label>What appeals to you about this listing?<span class="req">*</span></label>
+            <textarea placeholder="What caught your eye about this business..." style="min-height: 72px;"></textarea>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>How do you plan to finance?<span class="req">*</span></label>
+            <select onchange="this.classList.toggle('selected', this.selectedIndex > 0)">
+              <option value="">Select...</option>
+              <option>Cash / Savings</option>
+              <option>Bank Loan</option>
+              <option>SBA Loan / Financing</option>
+              <option>Investor / Partner</option>
+              <option>Vendor Finance</option>
+              <option>Combination</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Best way to reach you?<span class="req">*</span></label>
+            <select onchange="this.classList.toggle('selected', this.selectedIndex > 0)">
+              <option value="">Select...</option>
+              <option>Phone – Morning</option>
+              <option>Phone – Afternoon</option>
+              <option>Phone – Evening</option>
+              <option>Email anytime</option>
+              <option>SMS / Text</option>
+            </select>
           </div>
         </div>
 
@@ -545,6 +571,11 @@
         <div class="checkbox-row">
           <input type="checkbox" id="terms">
           <label for="terms">I agree to the terms and conditions as of February 12, 2026<span class="req">*</span></label>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="notify" checked>
+          <label for="notify">Notify me when other listings match my criteria</label>
         </div>
 
         <div class="signature-area">
