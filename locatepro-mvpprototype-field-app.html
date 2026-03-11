@@ -1,0 +1,3107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocatePro – Field App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+    <style>
+        /* ============================================================
+           CSS VARIABLES — shadcn/zinc palette + Provac brand
+           ============================================================ */
+        :root {
+            /* Zinc scale (shadcn base) */
+            --zinc-50: #fafafa;
+            --zinc-100: #f4f4f5;
+            --zinc-200: #e4e4e7;
+            --zinc-300: #d4d4d8;
+            --zinc-400: #a1a1aa;
+            --zinc-500: #71717a;
+            --zinc-600: #52525b;
+            --zinc-700: #3f3f46;
+            --zinc-800: #27272a;
+            --zinc-900: #18181b;
+            --zinc-950: #09090b;
+
+            /* Provac brand */
+            --brand: #1B3A5C;
+            --brand-dark: #142D48;
+            --brand-light: #2A5A8C;
+            --accent: #E87A2E;
+            --accent-hover: #D06B22;
+            --accent-light: #FEF3EB;
+
+            /* Functional */
+            --success: #22C55E;
+            --success-light: #F0FDF4;
+            --warning: #EAB308;
+            --destructive: #EF4444;
+
+            /* Utility AS5488 */
+            --u-electrical: #DC2626;
+            --u-water: #2563EB;
+            --u-sewer: #D97706;
+            --u-comms: #1E40AF;
+            --u-stormwater: #16A34A;
+            --u-gas: #CA8A04;
+            --u-recycled: #9333EA;
+            --u-unknown: #71717a;
+
+            /* Layout */
+            --sidebar-w: 64px;
+            --panel-w: 380px;
+            --header-h: 52px;
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--zinc-100);
+            color: var(--zinc-900);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button { font-family: inherit; cursor: pointer; }
+        select, input, textarea { font-family: inherit; }
+
+        /* ============================================================
+           APP LAYOUT
+           ============================================================ */
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--brand);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            flex-shrink: 0;
+            z-index: 200;
+        }
+
+        .sidebar-logo {
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.3px;
+            margin-bottom: 24px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .sidebar-logo span { color: var(--accent); }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            padding: 0 8px;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 10px 4px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius);
+            color: rgba(255,255,255,0.5);
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.8);
+        }
+
+        .sidebar-btn.active {
+            background: rgba(255,255,255,0.12);
+            color: white;
+        }
+
+        .sidebar-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+        }
+
+        .sidebar-btn .sb-label {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .sidebar-spacer { flex: 1; }
+
+        /* ============================================================
+           MAIN AREA
+           ============================================================ */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ============================================================
+           TOP BAR
+           ============================================================ */
+        .top-bar {
+            height: var(--header-h);
+            background: white;
+            border-bottom: 1px solid var(--zinc-200);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .top-bar-project {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-bar-project h1 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--zinc-900);
+        }
+
+        .top-bar-project .project-client {
+            font-size: 13px;
+            color: var(--zinc-500);
+        }
+
+        .top-bar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--zinc-200);
+        }
+
+        .top-bar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-features {
+            background: var(--zinc-100);
+            color: var(--zinc-600);
+            border: 1px solid var(--zinc-200);
+        }
+
+        .badge-gps {
+            background: var(--success-light);
+            color: #16A34A;
+            border: 1px solid #BBF7D0;
+        }
+
+        .badge-gps .gps-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .badge-accuracy {
+            background: white;
+            color: var(--success);
+            border: 1px solid var(--zinc-200);
+            font-weight: 700;
+        }
+
+        /* ============================================================
+           SCREENS
+           ============================================================ */
+        .screen {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen.active { display: flex; }
+
+        /* ============================================================
+           SCREEN: PROJECTS LIST
+           ============================================================ */
+        .projects-screen {
+            flex-direction: column;
+            background: var(--zinc-50);
+            overflow-y: auto;
+        }
+
+        .page-header {
+            padding: 28px 32px 20px;
+            background: white;
+            border-bottom: 1px solid var(--zinc-200);
+        }
+
+        .page-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--zinc-500);
+            margin-top: 2px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            background: var(--zinc-900);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+
+        .btn-primary:hover { background: var(--zinc-800); }
+
+        .btn-primary svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            background: white;
+            color: var(--zinc-700);
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .btn-outline:hover {
+            background: var(--zinc-50);
+            border-color: var(--zinc-300);
+        }
+
+        .btn-outline svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+
+        .btn-accent:hover { background: var(--accent-hover); }
+
+        .btn-accent svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .projects-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 16px 32px;
+        }
+
+        .project-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .project-card:hover {
+            background: var(--zinc-50);
+        }
+
+        .project-card.is-active {
+            border-left: 3px solid var(--success);
+        }
+
+        .project-card-top {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-card-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--zinc-500);
+            margin-top: 2px;
+        }
+
+        .project-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .project-card-meta svg {
+            width: 12px;
+            height: 12px;
+            stroke: var(--zinc-400);
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .status-badge.in-progress {
+            background: var(--success-light);
+            color: #16A34A;
+        }
+
+        .status-badge.completed {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .project-card-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--zinc-500);
+            flex-shrink: 0;
+        }
+
+        .project-card-stats span {
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+           SCREEN: MAP VIEW
+           ============================================================ */
+        .map-screen {
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Map toolbar (left side) */
+        .map-toolbar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .map-tool {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .map-tool:hover {
+            background: var(--zinc-50);
+            border-color: var(--zinc-300);
+        }
+
+        .map-tool.active {
+            background: var(--brand);
+            border-color: var(--brand);
+        }
+
+        .map-tool.active svg { stroke: white; }
+
+        .map-tool svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--zinc-600);
+            stroke-width: 1.8;
+            fill: none;
+        }
+
+        .map-tool .tool-tip {
+            display: none;
+            position: absolute;
+            left: 48px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--zinc-900);
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .map-tool:hover .tool-tip { display: block; }
+
+        /* Map legend (top right) */
+        .map-legend {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 50;
+            background: white;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            min-width: 150px;
+        }
+
+        .legend-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--zinc-500);
+            margin-bottom: 8px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 0;
+        }
+
+        .legend-swatch {
+            width: 18px;
+            height: 3px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--zinc-700);
+        }
+
+        /* GPS accuracy floating badge */
+        .map-gps-badge {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            z-index: 50;
+            background: white;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-gps-badge .mgb-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--zinc-500);
+        }
+
+        .map-gps-badge .mgb-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* Add feature FAB */
+        .fab {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            z-index: 50;
+            display: flex;
+            gap: 8px;
+        }
+
+        .fab-btn {
+            height: 44px;
+            padding: 0 18px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .fab-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .fab-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .fab-btn-primary:hover { background: var(--accent-hover); }
+
+        .fab-btn-secondary {
+            background: white;
+            color: var(--zinc-700);
+            border: 1px solid var(--zinc-200);
+        }
+
+        .fab-btn-secondary:hover { background: var(--zinc-50); }
+
+        /* ============================================================
+           RIGHT PANEL (slide-over on map)
+           ============================================================ */
+        .right-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: var(--panel-w);
+            height: 100%;
+            background: white;
+            border-left: 1px solid var(--zinc-200);
+            z-index: 80;
+            display: none;
+            flex-direction: column;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.06);
+        }
+
+        .right-panel.open {
+            display: flex;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--zinc-200);
+            flex-shrink: 0;
+        }
+
+        .panel-back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .panel-back:hover { background: var(--zinc-50); }
+
+        .panel-back svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--zinc-600);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .panel-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .panel-header-right {
+            margin-left: auto;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--zinc-200);
+            flex-shrink: 0;
+        }
+
+        .panel-footer .btn-accent,
+        .panel-footer .btn-primary {
+            width: 100%;
+            justify-content: center;
+            padding: 11px 16px;
+        }
+
+        /* ============================================================
+           FORM COMPONENTS (shadcn style)
+           ============================================================ */
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--zinc-500);
+            margin-bottom: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-grid.full { grid-template-columns: 1fr; }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--zinc-700);
+        }
+
+        .form-field label .req { color: var(--destructive); }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            font-size: 13px;
+            color: var(--zinc-900);
+            background: white;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .form-field textarea {
+            height: auto;
+            min-height: 72px;
+            padding: 10px 12px;
+            resize: vertical;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            border-color: var(--zinc-400);
+            box-shadow: 0 0 0 2px rgba(24,24,27,0.05);
+        }
+
+        .form-field input::placeholder {
+            color: var(--zinc-400);
+        }
+
+        .form-field .input-unit {
+            position: relative;
+        }
+
+        .form-field .input-unit input {
+            padding-right: 36px;
+            width: 100%;
+        }
+
+        .form-field .input-unit .unit {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--zinc-400);
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        /* Geometry selector (tabs) */
+        .geom-tabs {
+            display: flex;
+            background: var(--zinc-100);
+            border-radius: var(--radius);
+            padding: 3px;
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+
+        .geom-tab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--zinc-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .geom-tab:hover { color: var(--zinc-700); }
+
+        .geom-tab.active {
+            background: white;
+            color: var(--zinc-900);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .geom-tab svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Photo upload */
+        .photo-drop {
+            border: 1px dashed var(--zinc-300);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--zinc-500);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .photo-drop:hover {
+            border-color: var(--zinc-400);
+            background: var(--zinc-50);
+        }
+
+        .photo-drop svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+        }
+
+        /* ============================================================
+           ANNOTATION PRESETS
+           ============================================================ */
+        .preset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--zinc-50);
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            font-size: 13px;
+            color: var(--zinc-700);
+            text-align: left;
+            transition: all 0.15s;
+            line-height: 1.4;
+        }
+
+        .preset-btn:hover {
+            background: white;
+            border-color: var(--zinc-300);
+        }
+
+        .preset-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--zinc-400);
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--zinc-400);
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--zinc-200);
+        }
+
+        /* ============================================================
+           FEATURES LIST (panel)
+           ============================================================ */
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--zinc-100);
+            cursor: pointer;
+        }
+
+        .feature-item:last-child { border-bottom: none; }
+
+        .feature-item:hover .fi-name { color: var(--brand); }
+
+        .fi-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .fi-info { flex: 1; }
+
+        .fi-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--zinc-900);
+            transition: color 0.15s;
+        }
+
+        .fi-detail {
+            font-size: 12px;
+            color: var(--zinc-500);
+        }
+
+        .fi-ql {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--zinc-100);
+            color: var(--zinc-600);
+        }
+
+        /* ============================================================
+           COMPLETION / REPORT PANEL
+           ============================================================ */
+        .completion-summary {
+            background: var(--zinc-50);
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .cs-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .cs-label { color: var(--zinc-500); }
+        .cs-value { font-weight: 600; color: var(--zinc-900); }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: var(--zinc-700);
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-icon.done {
+            background: var(--success-light);
+        }
+
+        .check-icon.done svg { stroke: var(--success); }
+
+        .check-icon svg {
+            width: 14px;
+            height: 14px;
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .share-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .share-option:hover {
+            border-color: var(--zinc-300);
+            background: var(--zinc-50);
+        }
+
+        .share-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .share-option-icon.pdf { background: #FEF2F2; }
+        .share-option-icon.pdf svg { stroke: var(--destructive); }
+        .share-option-icon.webmap { background: #EFF6FF; }
+        .share-option-icon.webmap svg { stroke: #2563EB; }
+
+        .share-option-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.8;
+            fill: none;
+        }
+
+        .share-option-text h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--zinc-900);
+        }
+
+        .share-option-text p {
+            font-size: 12px;
+            color: var(--zinc-500);
+        }
+
+        /* ============================================================
+           PROJECT CREATION MODAL
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--zinc-200);
+        }
+
+        .modal-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { background: var(--zinc-50); }
+
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--zinc-500);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .modal-body { padding: 20px 24px; }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--zinc-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* ============================================================
+           UTILITY MARKERS
+           ============================================================ */
+        .u-marker {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+
+        .maplibregl-popup-content {
+            border-radius: var(--radius) !important;
+            padding: 12px 14px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .popup-type {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .popup-info {
+            font-size: 12px;
+            color: var(--zinc-500);
+            line-height: 1.5;
+        }
+
+        .popup-ql {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            background: var(--zinc-100);
+            color: var(--zinc-600);
+        }
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--zinc-900);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--success);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* ============================================================
+           CROSSHAIR (map centre for feature placement)
+           ============================================================ */
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 60;
+            pointer-events: none;
+            display: none;
+        }
+
+        .crosshair.visible { display: block; }
+
+        .crosshair-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .crosshair-ring::before, .crosshair-ring::after {
+            content: '';
+            position: absolute;
+            background: var(--accent);
+        }
+
+        .crosshair-ring::before {
+            width: 2px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .crosshair-ring::after {
+            width: 12px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .crosshair-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+           DRAWING MODE BANNER
+           ============================================================ */
+        .drawing-banner {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 90;
+            background: var(--zinc-900);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .drawing-banner.visible { display: flex; }
+
+        .drawing-banner .db-text { flex: 1; }
+
+        .drawing-banner .db-count {
+            background: rgba(255,255,255,0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .drawing-banner button {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .drawing-banner .db-finish {
+            background: var(--accent);
+            color: white;
+        }
+
+        .drawing-banner .db-cancel {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .drawing-banner .db-undo {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        /* Drawing mode cursor */
+        .map-screen.drawing-mode { cursor: crosshair; }
+        .map-screen.drawing-mode #map { cursor: crosshair; }
+
+        /* ============================================================
+           LINE STRINGING INDICATOR
+           ============================================================ */
+        .line-progress {
+            display: none;
+            background: var(--brand);
+            color: white;
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .line-progress.visible { display: flex; align-items: center; gap: 10px; }
+
+        .line-progress .lp-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .line-progress .lp-icon svg {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .line-progress .lp-info { flex: 1; }
+
+        .line-progress .lp-count {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .line-progress .lp-hint {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        /* Footer with multiple buttons for line mode */
+        .panel-footer-line {
+            display: none;
+            padding: 16px 20px;
+            border-top: 1px solid var(--zinc-200);
+            flex-shrink: 0;
+            gap: 8px;
+        }
+
+        .panel-footer-line.visible { display: flex; }
+
+        .panel-footer-line .btn-accent,
+        .panel-footer-line .btn-outline {
+            flex: 1;
+            justify-content: center;
+            padding: 11px 16px;
+        }
+
+        /* ============================================================
+           PDF CAPTURE MODE
+           ============================================================ */
+        .capture-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 70;
+            pointer-events: none;
+            display: none;
+        }
+
+        .capture-overlay.visible { display: block; }
+
+        /* A4 landscape guideline (297:210 ratio = ~1.414:1) */
+        .a4-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            /* Fill ~80% of viewport width, keep A4 landscape ratio */
+            width: 80%;
+            aspect-ratio: 297 / 210;
+            max-height: 80%;
+            border: 2.5px dashed rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+            border-radius: 4px;
+        }
+
+        .a4-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 3px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* Capture mode toolbar (top) */
+        .capture-bar {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 95;
+            background: var(--zinc-900);
+            color: white;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            display: none;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            pointer-events: auto;
+        }
+
+        .capture-bar.visible { display: flex; }
+
+        .capture-bar .cb-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .capture-bar .cb-text strong {
+            color: var(--accent);
+        }
+
+        .capture-bar button {
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .capture-bar button svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .capture-bar .cb-capture {
+            background: var(--accent);
+            color: white;
+        }
+
+        .capture-bar .cb-done {
+            background: var(--success);
+            color: white;
+        }
+
+        .capture-bar .cb-cancel {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        /* Captured pages panel (right side during capture) */
+        .capture-pages {
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            z-index: 95;
+            background: white;
+            border: 1px solid var(--zinc-200);
+            border-radius: var(--radius);
+            padding: 12px;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            max-height: calc(100% - 90px);
+            overflow-y: auto;
+            pointer-events: auto;
+        }
+
+        .capture-pages.visible { display: flex; }
+
+        .capture-pages-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--zinc-500);
+        }
+
+        .captured-page {
+            border: 1px solid var(--zinc-200);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .captured-page img {
+            width: 100%;
+            display: block;
+        }
+
+        .captured-page .cp-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 6px;
+            text-align: center;
+        }
+
+        .captured-page-placeholder {
+            width: 100%;
+            aspect-ratio: 297 / 210;
+            background: var(--zinc-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: var(--zinc-500);
+            font-weight: 500;
+        }
+
+        /* Auto-generated page indicators */
+        .auto-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: var(--zinc-50);
+            border: 1px solid var(--zinc-200);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--zinc-500);
+        }
+
+        .auto-page svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--zinc-400);
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+
+        <!-- ======================== SIDEBAR ======================== -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Locate<span>Pro</span></div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-btn" data-screen="screen-projects">
+                    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    <span class="sb-label">Projects</span>
+                </button>
+                <button class="sidebar-btn active" data-screen="screen-map">
+                    <svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                    <span class="sb-label">Map</span>
+                </button>
+                <button class="sidebar-btn" data-screen="panel-features">
+                    <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>
+                    <span class="sb-label">Features</span>
+                </button>
+                <button class="sidebar-btn" data-screen="panel-complete">
+                    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="sb-label">Complete</span>
+                </button>
+            </nav>
+            <div class="sidebar-spacer"></div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-btn">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span class="sb-label">Settings</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- ======================== MAIN AREA ======================== -->
+        <div class="main-area">
+
+            <!-- TOP BAR -->
+            <div class="top-bar" id="top-bar">
+                <div class="top-bar-project">
+                    <h1>178 Palm Meadows Dr, Carrara</h1>
+                    <span class="project-client">GCI Solutions • Taylor</span>
+                </div>
+                <div class="top-bar-right">
+                    <div class="badge badge-features" id="feature-count-badge">12 features</div>
+                    <div class="badge badge-accuracy">±0.22m</div>
+                    <div class="badge badge-gps"><div class="gps-dot"></div> GPS Locked</div>
+                </div>
+            </div>
+
+            <!-- ==================== SCREEN: PROJECTS ==================== -->
+            <div id="screen-projects" class="screen projects-screen">
+                <div class="page-header">
+                    <div class="page-header-row">
+                        <div>
+                            <h1>Projects</h1>
+                            <p id="projects-subtitle">3 projects • 2 in progress</p>
+                        </div>
+                        <button class="btn-primary" id="btn-new-project">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            New Project
+                        </button>
+                    </div>
+                </div>
+                <div class="projects-grid" id="projects-grid"></div>
+            </div>
+
+            <!-- ==================== SCREEN: MAP ==================== -->
+            <div id="screen-map" class="screen active map-screen">
+                <div id="map"></div>
+
+                <!-- PDF Capture overlay -->
+                <div class="capture-overlay" id="capture-overlay">
+                    <div class="a4-frame">
+                        <div class="a4-label">A4 Landscape — rotate &amp; zoom to frame your site</div>
+                    </div>
+                </div>
+
+                <!-- Capture mode toolbar -->
+                <div class="capture-bar" id="capture-bar">
+                    <span class="cb-text"><strong>PDF Capture</strong> — position map, then capture</span>
+                    <button class="cb-capture" onclick="capturePage()">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+                        Capture Page
+                    </button>
+                    <button class="cb-done" id="cb-done-btn" onclick="finishCapture()" style="display:none">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        Done
+                    </button>
+                    <button class="cb-cancel" onclick="cancelCapture()">Cancel</button>
+                </div>
+
+                <!-- Captured pages panel -->
+                <div class="capture-pages" id="capture-pages">
+                    <div class="capture-pages-title">Report Pages</div>
+                    <div class="auto-page"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Cover Page (auto)</div>
+                    <div class="auto-page"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Project Info (auto)</div>
+                    <div id="captured-pages-list"></div>
+                    <div class="auto-page"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>AS5488 Legend (auto)</div>
+                    <div class="auto-page"><svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>Duty of Care (auto)</div>
+                </div>
+
+                <!-- Crosshair for placing features -->
+                <div class="crosshair" id="crosshair">
+                    <div class="crosshair-ring"></div>
+                    <div class="crosshair-label" id="crosshair-label">Place feature here</div>
+                </div>
+
+                <!-- Drawing mode banner -->
+                <div class="drawing-banner" id="drawing-banner">
+                    <span class="db-text">Drawing scope of works</span>
+                    <span class="db-count" id="db-point-count">0 points</span>
+                    <button class="db-undo" onclick="undoDrawPoint()">Undo</button>
+                    <button class="db-finish" onclick="finishDrawing()">Finish</button>
+                    <button class="db-cancel" onclick="cancelDrawing()">Cancel</button>
+                </div>
+
+                <!-- Map toolbar -->
+                <div class="map-toolbar">
+                    <button class="map-tool" id="tool-layers" title="Layers">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        <span class="tool-tip">Layers</span>
+                    </button>
+                    <button class="map-tool" id="tool-geofence" title="Toggle SOW geofence">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/></svg>
+                        <span class="tool-tip">Scope of Works</span>
+                    </button>
+                    <button class="map-tool" id="tool-locate" title="Centre on GPS">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+                        <span class="tool-tip">Centre on GPS</span>
+                    </button>
+                    <button class="map-tool" id="tool-history" title="Historical data">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="tool-tip">Historical Data</span>
+                    </button>
+                </div>
+
+                <!-- Legend -->
+                <div class="map-legend" id="map-legend">
+                    <div class="legend-title">Utilities</div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-electrical)"></div><span class="legend-name">Electrical</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-comms)"></div><span class="legend-name">Communications</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-water)"></div><span class="legend-name">Water</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-sewer)"></div><span class="legend-name">Sewer</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-stormwater)"></div><span class="legend-name">Stormwater</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-recycled)"></div><span class="legend-name">Recycled Water</span></div>
+                    <div class="legend-row"><div class="legend-swatch" style="background:var(--u-unknown)"></div><span class="legend-name">GPR / Unknown</span></div>
+                </div>
+
+                <!-- GPS accuracy badge -->
+                <div class="map-gps-badge">
+                    <span class="mgb-label">Accuracy</span>
+                    <span class="mgb-value">±0.22m</span>
+                </div>
+
+                <!-- FAB buttons -->
+                <div class="fab" id="fab-buttons">
+                    <button class="fab-btn fab-btn-secondary" id="btn-draw-sow">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/></svg>
+                        Draw SOW
+                    </button>
+                    <button class="fab-btn fab-btn-secondary" id="btn-open-annotate">
+                        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Add Note
+                    </button>
+                    <button class="fab-btn fab-btn-primary" id="btn-open-capture">
+                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Feature
+                    </button>
+                </div>
+
+                <!-- ====== RIGHT PANEL: FEATURE CAPTURE ====== -->
+                <div class="right-panel" id="panel-capture">
+                    <div class="panel-header">
+                        <button class="panel-back" onclick="closePanel('panel-capture')">
+                            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>New Feature</h2>
+                        <div class="panel-header-right">
+                            <div class="badge badge-accuracy">±0.22m</div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <!-- Geometry type -->
+                        <div class="geom-tabs">
+                            <button class="geom-tab active" data-geom="point">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg> Point
+                            </button>
+                            <button class="geom-tab" data-geom="line">
+                                <svg viewBox="0 0 24 24"><path d="M4 20L20 4"/></svg> Line
+                            </button>
+                            <button class="geom-tab" data-geom="polygon">
+                                <svg viewBox="0 0 24 24"><path d="M12 3L3 10l3 10h12l3-10z"/></svg> Polygon
+                            </button>
+                        </div>
+
+                        <!-- Line stringing progress -->
+                        <div class="line-progress" id="line-progress">
+                            <div class="lp-icon"><svg viewBox="0 0 24 24"><path d="M4 20L20 4"/></svg></div>
+                            <div class="lp-info">
+                                <div class="lp-count" id="lp-count">0 points in line</div>
+                                <div class="lp-hint">Move map and add next point. Change depth as needed.</div>
+                            </div>
+                        </div>
+
+                        <!-- Utility details -->
+                        <div class="form-section">
+                            <div class="form-section-label">Utility Details</div>
+                            <div class="form-grid full">
+                                <div class="form-field">
+                                    <label>Asset Type <span class="req">*</span></label>
+                                    <select><option value="" disabled selected>Select...</option><option>Electrical</option><option>Water</option><option>Sewer</option><option>Gas</option><option>Communications</option><option>Stormwater</option><option>Recycled Water</option><option>Unknown</option></select>
+                                </div>
+                            </div>
+                            <div class="form-grid full" style="margin-top:12px">
+                                <div class="form-field">
+                                    <label>Asset Owner</label>
+                                    <select><option value="" disabled selected>Select...</option><option>Energex</option><option>Telstra</option><option>NBN Co</option><option>Urban Utilities</option><option>Gold Coast Water</option><option>APA Group</option><option>Optus</option><option>Other</option></select>
+                                </div>
+                            </div>
+                            <div class="form-grid full" style="margin-top:12px">
+                                <div class="form-field">
+                                    <label>Pipe Material</label>
+                                    <select><option value="" disabled selected>Select...</option><option>PVC</option><option>PE</option><option>DICL</option><option>AC (Asbestos Cement)</option><option>Steel</option><option>RCP (Reinforced Concrete)</option><option>Clay / Vitreous Clay</option><option>Copper</option><option>Unknown</option></select>
+                                </div>
+                            </div>
+                            <div class="form-grid" style="margin-top:12px">
+                                <div class="form-field">
+                                    <label>Pipe Size</label>
+                                    <div class="input-unit">
+                                        <input type="text" placeholder="e.g. 150">
+                                        <span class="unit">mm</span>
+                                    </div>
+                                </div>
+                                <div class="form-field">
+                                    <label>Conduits</label>
+                                    <select><option value="" disabled selected>Select...</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option></select>
+                                </div>
+                            </div>
+                            <div class="form-grid" style="margin-top:12px">
+                                <div class="form-field">
+                                    <label>Depth <span class="req">*</span></label>
+                                    <div class="input-unit">
+                                        <input type="text" placeholder="e.g. 1.2">
+                                        <span class="unit">m</span>
+                                    </div>
+                                </div>
+                                <div class="form-field">
+                                    <label>Quality Level <span class="req">*</span></label>
+                                    <select><option value="" disabled selected>Select...</option><option>QL-A (Potholed)</option><option>QL-B (EMF Located)</option><option>QL-C (Surface Features)</option><option>QL-D (Plans Only)</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comments & photo -->
+                        <div class="form-section">
+                            <div class="form-section-label">Additional Info</div>
+                            <div class="form-grid full">
+                                <div class="form-field">
+                                    <label>Comments</label>
+                                    <textarea placeholder="Additional observations..."></textarea>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px">
+                                <div class="photo-drop">
+                                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                    Add Photo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer" id="footer-point">
+                        <button class="btn-accent" id="btn-save-feature">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            Save Feature
+                        </button>
+                    </div>
+                    <div class="panel-footer-line" id="footer-line">
+                        <button class="btn-outline" id="btn-finish-line">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                            Finish Line
+                        </button>
+                        <button class="btn-accent" id="btn-add-line-point">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Point
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ====== RIGHT PANEL: FEATURES LIST ====== -->
+                <div class="right-panel" id="panel-features">
+                    <div class="panel-header">
+                        <button class="panel-back" onclick="closePanel('panel-features')">
+                            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Features</h2>
+                        <div class="panel-header-right">
+                            <div class="badge badge-features" id="features-panel-count">0 captured</div>
+                        </div>
+                    </div>
+                    <div class="panel-body" id="features-list"></div>
+                </div>
+
+                <!-- ====== RIGHT PANEL: ANNOTATIONS ====== -->
+                <div class="right-panel" id="panel-annotate">
+                    <div class="panel-header">
+                        <button class="panel-back" onclick="closePanel('panel-annotate')">
+                            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Add Annotation</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-section-label">Quick Presets</div>
+                        <div class="preset-list">
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                No internal plans provided
+                            </button>
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Completed passive, power, radio, blind and GPR sweep in and around SOW
+                            </button>
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Alignment taken from plans
+                            </button>
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Unable to access pit
+                            </button>
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Unable to find pit stated on internal plans
+                            </button>
+                            <button class="preset-btn" onclick="placeAnnotation(this.textContent.trim())">
+                                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                UNK conduit size or amount — unable to gain access to pit
+                            </button>
+                        </div>
+
+                        <div class="divider">or custom</div>
+
+                        <div class="form-grid full">
+                            <div class="form-field">
+                                <label>Custom Note</label>
+                                <textarea id="custom-note" placeholder="Type your annotation..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn-accent" onclick="placeAnnotation(document.getElementById('custom-note').value)">
+                            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Place on Map
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ====== RIGHT PANEL: COMPLETION ====== -->
+                <div class="right-panel" id="panel-complete">
+                    <div class="panel-header">
+                        <button class="panel-back" onclick="closePanel('panel-complete')">
+                            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Complete &amp; Share</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-section-label">Project Summary</div>
+                        <div class="completion-summary">
+                            <div class="cs-row"><span class="cs-label">Site Address</span><span class="cs-value">178 Palm Meadows Dr, Carrara</span></div>
+                            <div class="cs-row"><span class="cs-label">Client</span><span class="cs-value">GCI Solutions</span></div>
+                            <div class="cs-row"><span class="cs-label">Locator</span><span class="cs-value">Taylor</span></div>
+                            <div class="cs-row"><span class="cs-label">Date</span><span class="cs-value">23/02/2026</span></div>
+                            <div class="cs-row"><span class="cs-label">Features Captured</span><span class="cs-value">12</span></div>
+                            <div class="cs-row"><span class="cs-label">Annotations</span><span class="cs-value">2</span></div>
+                        </div>
+
+                        <div class="form-section-label">Pre-send Checklist</div>
+                        <div class="check-row"><div class="check-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div> Scope of works geofence set</div>
+                        <div class="check-row"><div class="check-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div> All features have required fields</div>
+                        <div class="check-row"><div class="check-icon done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div> At least one feature captured</div>
+
+                        <div class="form-grid" style="margin-top:20px">
+                            <div class="form-field">
+                                <label>Internal Plans Supplied</label>
+                                <select><option>No</option><option>Yes</option></select>
+                            </div>
+                            <div class="form-field">
+                                <label>Client On-site</label>
+                                <select><option>Yes</option><option>No</option></select>
+                            </div>
+                        </div>
+                        <div class="form-grid full" style="margin-top:12px">
+                            <div class="form-field">
+                                <label>GPR Data Quality</label>
+                                <select><option value="" disabled selected>Select...</option><option>Poor</option><option>Average</option><option>Good</option></select>
+                            </div>
+                        </div>
+
+                        <div class="form-section-label" style="margin-top:24px">Share With Client</div>
+                        <div class="share-options">
+                            <div class="share-option" onclick="startCapture()">
+                                <div class="share-option-icon pdf">
+                                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                                </div>
+                                <div class="share-option-text">
+                                    <h4>Generate PDF Report</h4>
+                                    <p>Capture map pages &amp; generate branded PDF</p>
+                                </div>
+                            </div>
+                            <div class="share-option" onclick="showToast('Web map link copied to clipboard')">
+                                <div class="share-option-icon webmap">
+                                    <svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/></svg>
+                                </div>
+                                <div class="share-option-text">
+                                    <h4>Share Web Map Link</h4>
+                                    <p>Read-only geofenced map for client</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- end screen-map -->
+
+        </div><!-- end main-area -->
+    </div><!-- end app -->
+
+    <!-- ======================== NEW PROJECT MODAL ======================== -->
+    <div class="modal-overlay" id="modal-new-project">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>New Project</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid full">
+                    <div class="form-field"><label>Site Address <span class="req">*</span></label><input type="text" placeholder="e.g. 178 Palm Meadows Dr, Carrara"></div>
+                </div>
+                <div class="form-grid" style="margin-top:12px">
+                    <div class="form-field"><label>Client <span class="req">*</span></label><input type="text" placeholder="Company name"></div>
+                    <div class="form-field"><label>Site Contact</label><input type="text" placeholder="Contact name"></div>
+                </div>
+                <div class="form-grid" style="margin-top:12px">
+                    <div class="form-field"><label>Client Email</label><input type="email" placeholder="email@example.com"></div>
+                    <div class="form-field"><label>Client Phone</label><input type="tel" placeholder="04xx xxx xxx"></div>
+                </div>
+                <div class="form-grid full" style="margin-top:12px">
+                    <div class="form-field"><label>Project Details</label><textarea placeholder="Brief description of the job scope..."></textarea></div>
+                </div>
+                <div class="form-grid" style="margin-top:12px">
+                    <div class="form-field"><label>Internal Plans Supplied</label><select><option>No</option><option>Yes</option></select></div>
+                    <div class="form-field"><label>Client On-site</label><select><option>No</option><option>Yes</option></select></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn-accent" onclick="createProject()">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ======================== SCRIPTS ======================== -->
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let featureCount = 12;
+        let annotationCount = 0;
+        let drawingMode = false;
+        let drawPoints = [];
+        let drawMarkers = [];
+        let userGeofenceSource = null;
+        let activeProjectId = 0;
+
+        const projects = [
+            { id: 0, address: '178 Palm Meadows Dr, Carrara', client: 'GCI Solutions', locator: 'Taylor', date: '23 Feb 2026', features: 12, status: 'in-progress', coords: [153.3692, -28.0256] },
+            { id: 1, address: 'Gallipoli Barracks, Enoggera', client: 'Bennett & Bennett', locator: 'Ashley', date: '16 Feb 2026', features: 47, status: 'completed', coords: [152.9575, -27.4280] },
+            { id: 2, address: '55 Railway St, Mudgeeraba', client: 'Hutchinson Builders', locator: 'Jake', date: '20 Feb 2026', features: 6, status: 'in-progress', coords: [153.3667, -28.0833] },
+        ];
+
+        // Features stored per project ID
+        const projectFeatures = {
+            0: [
+                { type: 'Electrical', color: '#DC2626', size: '2×P50', depth: '0.4m', ql: 'QL-B' },
+                { type: 'Electrical', color: '#DC2626', size: '', depth: '0.5m', ql: 'QL-B' },
+                { type: 'Electrical', color: '#DC2626', size: '', depth: '0.8m', ql: 'QL-B' },
+                { type: 'Electrical', color: '#DC2626', size: '', depth: '0.5m', ql: 'QL-B' },
+                { type: 'Communications', color: '#1E40AF', size: '4×P100', depth: '0.4m', ql: 'QL-B' },
+                { type: 'Communications', color: '#1E40AF', size: '', depth: '0.4m', ql: 'QL-B' },
+                { type: 'Communications', color: '#1E40AF', size: '', depth: '0.5m', ql: 'QL-B' },
+                { type: 'Water', color: '#2563EB', size: '150 DICL', depth: '1.2m', ql: 'QL-B' },
+                { type: 'Sewer', color: '#D97706', size: '225 PVC', depth: '1.5m', ql: 'QL-C' },
+                { type: 'Stormwater', color: '#16A34A', size: '450 PE', depth: '1.0m', ql: 'QL-C' },
+                { type: 'Recycled Water', color: '#9333EA', size: '', depth: 'Plans only', ql: 'QL-D' },
+                { type: 'GPR Unknown', color: '#71717a', size: '', depth: '0.8m', ql: 'QL-C' },
+            ],
+            1: [],
+            2: [],
+        };
+
+        const COLORS = {
+            'Electrical': { color: '#DC2626', abbr: 'E' },
+            'Water': { color: '#2563EB', abbr: 'W' },
+            'Sewer': { color: '#D97706', abbr: 'SE' },
+            'Gas': { color: '#CA8A04', abbr: 'G' },
+            'Communications': { color: '#1E40AF', abbr: 'C' },
+            'Stormwater': { color: '#16A34A', abbr: 'SW' },
+            'Recycled Water': { color: '#9333EA', abbr: 'RW' },
+            'Unknown': { color: '#71717a', abbr: 'UNK' },
+        };
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        const allScreens = document.querySelectorAll('.screen');
+        const sidebarBtns = document.querySelectorAll('.sidebar-btn[data-screen]');
+
+        function showScreen(id) {
+            document.querySelectorAll('.right-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('crosshair')?.classList.remove('visible');
+
+            if (id.startsWith('panel-')) {
+                showScreen('screen-map');
+                const panel = document.getElementById(id);
+                if (panel) panel.classList.add('open');
+                sidebarBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector(`.sidebar-btn[data-screen="${id}"]`)?.classList.add('active');
+                if (id === 'panel-features') renderFeatures();
+            } else {
+                allScreens.forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(id);
+                if (target) target.classList.add('active');
+                sidebarBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector(`.sidebar-btn[data-screen="${id}"]`)?.classList.add('active');
+            }
+
+            document.getElementById('top-bar').style.display = (id === 'screen-projects') ? 'none' : 'flex';
+            
+            // Re-render projects list when showing it
+            if (id === 'screen-projects') renderProjects();
+        }
+
+        sidebarBtns.forEach(btn => {
+            btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+        });
+
+        function openProject(id) {
+            activeProjectId = id;
+            const project = projects.find(p => p.id === id);
+            if (!project) return;
+
+            // Update top bar
+            document.querySelector('.top-bar-project h1').textContent = project.address;
+            document.querySelector('.top-bar-project .project-client').textContent = `${project.client} • ${project.locator}`;
+            featureCount = project.features;
+            updateFeatureCount();
+
+            showScreen('screen-map');
+
+            // Fly to project location if coords exist
+            if (project.coords) {
+                map.flyTo({ center: project.coords, zoom: 18, duration: 1500 });
+            }
+
+            // Update features list for this project
+            renderFeatures();
+
+            // Re-render projects list to update active state
+            renderProjects();
+        }
+
+        // SVG icon helpers for project cards
+        const iconUser = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        const iconCal = '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+        const iconFolder = '<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            const inProgress = projects.filter(p => p.status === 'in-progress').length;
+            document.getElementById('projects-subtitle').textContent = `${projects.length} project${projects.length !== 1 ? 's' : ''} • ${inProgress} in progress`;
+
+            grid.innerHTML = projects.map(p => `
+                <div class="project-card ${p.id === activeProjectId ? 'is-active' : ''}" onclick="openProject(${p.id})">
+                    <div class="project-card-top">
+                        <h3>${p.address}</h3>
+                        <div class="project-card-meta">
+                            <span>${iconUser}${p.locator}</span>
+                            <span>${iconCal}${p.date}</span>
+                            <span>${iconFolder}${p.client}</span>
+                        </div>
+                    </div>
+                    <div class="project-card-stats"><span>${p.features} features</span></div>
+                    <span class="status-badge ${p.status}">${p.status === 'in-progress' ? 'In Progress' : 'Completed'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Initial render
+        renderProjects();
+
+        function closePanel(id) {
+            document.getElementById(id)?.classList.remove('open');
+            document.getElementById('crosshair')?.classList.remove('visible');
+            sidebarBtns.forEach(b => b.classList.remove('active'));
+            document.querySelector('.sidebar-btn[data-screen="screen-map"]')?.classList.add('active');
+            
+            // If closing capture panel, clean up any in-progress line
+            if (id === 'panel-capture') {
+                if (linePoints.length > 0 && !map.getLayer('active-line')) {
+                    // Line was finished, nothing to clean
+                } else if (map.getLayer('active-line')) {
+                    // Unfinished line — remove it
+                    map.removeLayer('active-line');
+                    map.removeSource('active-line');
+                }
+                resetLineState();
+                currentGeom = 'point';
+                document.querySelectorAll('.geom-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('.geom-tab[data-geom="point"]')?.classList.add('active');
+                updateGeomUI();
+            }
+        }
+
+        // Open capture panel + show crosshair
+        document.getElementById('btn-open-capture').addEventListener('click', () => {
+            if (drawingMode) return;
+            document.querySelectorAll('.right-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('panel-capture').classList.add('open');
+            document.getElementById('crosshair').classList.add('visible');
+            updateGeomUI();
+        });
+
+        document.getElementById('btn-open-annotate').addEventListener('click', () => {
+            if (drawingMode) return;
+            document.querySelectorAll('.right-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('panel-annotate').classList.add('open');
+        });
+
+        // Geometry tabs
+        let currentGeom = 'point';
+        let linePoints = [];
+        let lineMarkers = [];
+        let lineSourceId = 100; // counter for dynamic line sources
+
+        document.querySelectorAll('.geom-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.geom-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentGeom = tab.dataset.geom;
+                updateGeomUI();
+            });
+        });
+
+        function updateGeomUI() {
+            const isLine = currentGeom === 'line';
+            document.getElementById('footer-point').style.display = isLine ? 'none' : '';
+            document.getElementById('footer-line').classList.toggle('visible', isLine);
+            
+            // Update crosshair label
+            const label = document.getElementById('crosshair-label');
+            if (isLine) {
+                label.textContent = linePoints.length === 0 ? 'Place first point' : 'Place next point';
+            } else {
+                label.textContent = 'Place feature here';
+            }
+            
+            if (isLine) {
+                document.getElementById('line-progress').classList.add('visible');
+                updateLineCount();
+            } else {
+                document.getElementById('line-progress').classList.remove('visible');
+                resetLineState();
+            }
+        }
+
+        function updateLineCount() {
+            document.getElementById('lp-count').textContent = linePoints.length + ' point' + (linePoints.length !== 1 ? 's' : '') + ' in line';
+        }
+
+        function resetLineState() {
+            linePoints = [];
+            lineMarkers.forEach(m => m.remove());
+            lineMarkers = [];
+        }
+
+        // Add point to line
+        document.getElementById('btn-add-line-point').addEventListener('click', () => {
+            const panel = document.getElementById('panel-capture');
+            const selects = panel.querySelectorAll('select');
+            const inputs = panel.querySelectorAll('input');
+            
+            const assetType = selects[0]?.value || '';
+            const depth = inputs[1]?.value || '';
+            const ql = selects[4]?.value || '';
+
+            if (!assetType || !depth || !ql) {
+                showToast('Please fill Asset Type, Depth, and Quality Level');
+                return;
+            }
+
+            const center = map.getCenter();
+            const colorInfo = COLORS[assetType] || COLORS['Unknown'];
+            const lngLat = [center.lng, center.lat];
+
+            linePoints.push({ lngLat, depth: depth + 'm' });
+
+            // Place small vertex marker
+            const el = document.createElement('div');
+            el.className = 'u-marker';
+            el.style.backgroundColor = colorInfo.color;
+            el.style.width = '20px';
+            el.style.height = '20px';
+            el.style.fontSize = '7px';
+            el.textContent = colorInfo.abbr;
+            
+            const popup = new maplibregl.Popup({ offset: 12, closeButton: false }).setHTML(
+                `<div class="popup-type">${assetType}</div><div class="popup-info">Depth: ${depth}m</div><div class="popup-ql">${ql.split(' ')[0]}</div>`
+            );
+            const marker = new maplibregl.Marker({ element: el }).setLngLat(lngLat).setPopup(popup).addTo(map);
+            lineMarkers.push(marker);
+
+            // Draw connecting line if we have 2+ points
+            if (linePoints.length >= 2) {
+                const coords = linePoints.map(p => p.lngLat);
+                const srcId = 'active-line';
+                
+                if (map.getSource(srcId)) {
+                    map.getSource(srcId).setData({
+                        type: 'Feature',
+                        geometry: { type: 'LineString', coordinates: coords }
+                    });
+                } else {
+                    map.addSource(srcId, {
+                        type: 'geojson',
+                        data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } }
+                    });
+                    map.addLayer({
+                        id: srcId,
+                        type: 'line',
+                        source: srcId,
+                        paint: { 'line-color': colorInfo.color, 'line-width': 3, 'line-opacity': 0.85 },
+                        layout: { 'line-cap': 'round', 'line-join': 'round' }
+                    });
+                }
+            }
+
+            updateLineCount();
+            document.getElementById('crosshair-label').textContent = 'Place next point';
+
+            // Only clear depth — everything else stays prefilled
+            inputs[1].value = '';
+            inputs[1].focus();
+
+            showToast(`Point ${linePoints.length} added at ${depth}m depth`);
+        });
+
+        // Finish line
+        document.getElementById('btn-finish-line').addEventListener('click', () => {
+            if (linePoints.length < 2) {
+                showToast('Need at least 2 points to finish a line');
+                return;
+            }
+
+            const panel = document.getElementById('panel-capture');
+            const selects = panel.querySelectorAll('select');
+            const inputs = panel.querySelectorAll('input');
+            const assetType = selects[0]?.value || 'Unknown';
+            const material = selects[2]?.value || '';
+            const pipeSize = inputs[0]?.value || '';
+            const ql = selects[4]?.value || '';
+            const colorInfo = COLORS[assetType] || COLORS['Unknown'];
+
+            // Make the active line permanent by creating a new source
+            const coords = linePoints.map(p => p.lngLat);
+            const permId = `perm-line-${lineSourceId++}`;
+            
+            // Remove temporary active line
+            if (map.getLayer('active-line')) map.removeLayer('active-line');
+            if (map.getSource('active-line')) map.removeSource('active-line');
+
+            // Add permanent line
+            const qlShort = ql ? ql.split(' ')[0] : 'QL-B';
+            const lineLabel = `${colorInfo.abbr} (${qlShort})`;
+            
+            map.addSource(permId, {
+                type: 'geojson',
+                data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } }
+            });
+            map.addLayer({
+                id: permId,
+                type: 'line',
+                source: permId,
+                paint: { 'line-color': colorInfo.color, 'line-width': 3, 'line-opacity': 0.85 },
+                layout: { 'line-cap': 'round', 'line-join': 'round' }
+            });
+            // Add HTML label at midpoint
+            const midIdx = Math.floor(coords.length / 2);
+            const labelEl = document.createElement('div');
+            labelEl.style.cssText = `font-family:Inter,sans-serif;font-size:10px;font-weight:700;color:${colorInfo.color};background:rgba(255,255,255,0.85);padding:1px 5px;border-radius:3px;white-space:nowrap;pointer-events:none;letter-spacing:0.3px;`;
+            labelEl.textContent = lineLabel;
+            new maplibregl.Marker({ element: labelEl, anchor: 'center' })
+                .setLngLat(coords[midIdx])
+                .addTo(map);
+
+            // Count as one feature
+            featureCount++;
+            updateFeatureCount();
+
+            const depths = linePoints.map(p => p.depth).join(', ');
+            const sizeStr = (pipeSize ? pipeSize + 'mm' : '') + (material ? ' ' + material : '');
+            addFeatureToList({
+                type: assetType,
+                color: colorInfo.color,
+                size: sizeStr.trim(),
+                depth: `${linePoints.length} pts (${depths})`,
+                ql: ql.split(' ')[0] || 'QL-B'
+            });
+
+            // Reset
+            linePoints = [];
+            lineMarkers = []; // Keep markers on map, they're part of the data now
+            updateLineCount();
+            
+            closePanel('panel-capture');
+            showToast(`${assetType} line saved with ${coords.length} points`);
+
+            // Reset form
+            selects.forEach(s => s.selectedIndex = 0);
+            inputs.forEach(i => i.value = '');
+            panel.querySelector('textarea').value = '';
+            currentGeom = 'point';
+            document.querySelectorAll('.geom-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.geom-tab[data-geom="point"]').classList.add('active');
+            updateGeomUI();
+        });
+
+        // Modals
+        document.getElementById('btn-new-project').addEventListener('click', () => {
+            document.getElementById('modal-new-project').classList.add('open');
+        });
+
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+        }
+
+        // Toast
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // ============================================================
+        // MAP
+        // ============================================================
+        const CENTER = [153.3692, -28.0256];
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            preserveDrawingBuffer: true,
+            style: {
+                version: 8,
+                sources: {
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                        tileSize: 256,
+                        maxzoom: 20,
+                        attribution: '&copy; Google'
+                    }
+                },
+                layers: [{ id: 'satellite', type: 'raster', source: 'satellite', minzoom: 0, maxzoom: 19 }]
+            },
+            center: CENTER,
+            zoom: 18,
+            maxZoom: 20,
+            minZoom: 14
+        });
+
+        map.dragRotate.disable();
+        map.touchZoomRotate.disableRotation();
+
+        // Seed data
+        const seedFeatures = [
+            { type: 'Electrical', abbr: 'E', coords: [153.36905, -28.02555], depth: '0.5m', ql: 'QL-B', size: '2×P50', color: '#DC2626' },
+            { type: 'Electrical', abbr: 'E', coords: [153.36920, -28.02558], depth: '0.5m', ql: 'QL-B', size: '', color: '#DC2626' },
+            { type: 'Electrical', abbr: 'E', coords: [153.36940, -28.02560], depth: '0.8m', ql: 'QL-B', size: '', color: '#DC2626' },
+            { type: 'Electrical', abbr: 'E', coords: [153.36960, -28.02558], depth: '0.5m', ql: 'QL-B', size: '', color: '#DC2626' },
+            { type: 'Communications', abbr: 'C', coords: [153.36910, -28.02570], depth: '0.4m', ql: 'QL-B', size: '4×P100', color: '#1E40AF' },
+            { type: 'Communications', abbr: 'C', coords: [153.36930, -28.02572], depth: '0.4m', ql: 'QL-B', size: '', color: '#1E40AF' },
+            { type: 'Communications', abbr: 'C', coords: [153.36950, -28.02570], depth: '0.5m', ql: 'QL-B', size: '', color: '#1E40AF' },
+            { type: 'Water', abbr: 'W', coords: [153.36895, -28.02548], depth: '1.2m', ql: 'QL-B', size: '150 DICL', color: '#2563EB' },
+            { type: 'Sewer', abbr: 'SE', coords: [153.36935, -28.02542], depth: '1.5m', ql: 'QL-C', size: '225 PVC', color: '#D97706' },
+            { type: 'Stormwater', abbr: 'SW', coords: [153.36955, -28.02545], depth: '1.0m', ql: 'QL-C', size: '450 PE', color: '#16A34A' },
+            { type: 'GPR Unknown', abbr: 'GPR', coords: [153.36915, -28.02580], depth: '0.8m', ql: 'QL-C', size: '', color: '#71717a' },
+            { type: 'GPR Unknown', abbr: 'GPR', coords: [153.36945, -28.02582], depth: '1.3m', ql: 'QL-C', size: '', color: '#71717a' },
+        ];
+
+        const seedLines = [
+            { type: 'Electrical', color: '#DC2626', coords: [[153.36890,-28.02557],[153.36905,-28.02555],[153.36920,-28.02558],[153.36940,-28.02560],[153.36960,-28.02558],[153.36975,-28.02555]] },
+            { type: 'Communications', color: '#1E40AF', coords: [[153.36895,-28.02572],[153.36910,-28.02570],[153.36930,-28.02572],[153.36950,-28.02570],[153.36970,-28.02568]] },
+            { type: 'GPR Unknown', color: '#71717a', coords: [[153.36900,-28.02582],[153.36915,-28.02580],[153.36945,-28.02582],[153.36965,-28.02580]] },
+            { type: 'Recycled Water', color: '#9333EA', coords: [[153.36892,-28.02590],[153.36925,-28.02592],[153.36960,-28.02590]] }
+        ];
+
+        const seedGeofence = [[153.36880,-28.02535],[153.36980,-28.02535],[153.36980,-28.02600],[153.36880,-28.02600],[153.36880,-28.02535]];
+
+        const historyFeatures = [
+            { type: 'Water', abbr: 'W', coords: [153.36900, -28.02530], depth: '1.0m', ql: 'QL-B', color: '#2563EB' },
+            { type: 'Electrical', abbr: 'E', coords: [153.36950, -28.02528], depth: '0.6m', ql: 'QL-B', color: '#DC2626' },
+            { type: 'Gas', abbr: 'G', coords: [153.36920, -28.02520], depth: '0.8m', ql: 'QL-B', color: '#CA8A04' },
+        ];
+        let historyMarkers = [];
+
+        function addMarkerToMap(f) {
+            const el = document.createElement('div');
+            el.className = 'u-marker';
+            el.style.backgroundColor = f.color;
+            el.textContent = f.abbr;
+            const popup = new maplibregl.Popup({ offset: 16, closeButton: false }).setHTML(
+                `<div class="popup-type">${f.type}</div><div class="popup-info">Depth: ${f.depth}${f.size ? '<br>Size: ' + f.size : ''}</div><div class="popup-ql">${f.ql}</div>`
+            );
+            new maplibregl.Marker({ element: el }).setLngLat(f.coords).setPopup(popup).addTo(map);
+        }
+
+        map.on('load', () => {
+            // Seed geofence
+            map.addSource('geofence', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [seedGeofence] } } });
+            map.addLayer({ id: 'geofence-fill', type: 'fill', source: 'geofence', paint: { 'fill-color': '#DC2626', 'fill-opacity': 0.05 } });
+            map.addLayer({ id: 'geofence-line', type: 'line', source: 'geofence', paint: { 'line-color': '#DC2626', 'line-width': 2, 'line-dasharray': [6, 4] } });
+
+            // User-drawn geofence source (empty initially)
+            map.addSource('user-geofence', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[]] } } });
+            map.addLayer({ id: 'user-geofence-fill', type: 'fill', source: 'user-geofence', paint: { 'fill-color': '#DC2626', 'fill-opacity': 0.06 } });
+            map.addLayer({ id: 'user-geofence-line', type: 'line', source: 'user-geofence', paint: { 'line-color': '#DC2626', 'line-width': 2.5, 'line-dasharray': [6, 4] } });
+
+            // Drawing preview line
+            map.addSource('draw-line', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } } });
+            map.addLayer({ id: 'draw-line', type: 'line', source: 'draw-line', paint: { 'line-color': '#DC2626', 'line-width': 2, 'line-dasharray': [4, 3], 'line-opacity': 0.7 } });
+
+            // Seed lines with labels
+            const lineLabels = {
+                'Electrical': 'E (QL-B)',
+                'Communications': 'C (QL-B)',
+                'GPR Unknown': 'GPR (QL-C)',
+                'Recycled Water': 'RW (QL-D)'
+            };
+
+            seedLines.forEach((l, i) => {
+                map.addSource(`line-${i}`, { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: l.coords } } });
+                map.addLayer({ id: `line-${i}`, type: 'line', source: `line-${i}`, paint: { 'line-color': l.color, 'line-width': 3, 'line-opacity': l.type === 'GPR Unknown' ? 0.5 : 0.85 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+            });
+
+            // Add HTML-based labels along lines
+            seedLines.forEach((l, i) => {
+                const label = lineLabels[l.type] || l.type;
+                // Place a label at the midpoint of each line
+                const midIdx = Math.floor(l.coords.length / 2);
+                const midCoord = l.coords[midIdx];
+                
+                const el = document.createElement('div');
+                el.style.cssText = `font-family:Inter,sans-serif;font-size:10px;font-weight:700;color:${l.color};background:rgba(255,255,255,0.85);padding:1px 5px;border-radius:3px;white-space:nowrap;pointer-events:none;letter-spacing:0.3px;`;
+                el.textContent = label;
+                
+                new maplibregl.Marker({ element: el, anchor: 'center' })
+                    .setLngLat(midCoord)
+                    .addTo(map);
+            });
+
+            // Seed markers
+            seedFeatures.forEach(f => addMarkerToMap(f));
+        });
+
+        // ============================================================
+        // FEATURE: SAVE & PLACE ON MAP
+        // ============================================================
+        document.getElementById('btn-save-feature').addEventListener('click', () => {
+            // Read form values
+            const panel = document.getElementById('panel-capture');
+            const selects = panel.querySelectorAll('select');
+            const inputs = panel.querySelectorAll('input');
+            
+            const assetType = selects[0]?.value || '';
+            const owner = selects[1]?.value || '';
+            const material = selects[2]?.value || '';
+            const pipeSize = inputs[0]?.value || '';
+            const conduits = selects[3]?.value || '';
+            const depth = inputs[1]?.value || '';
+            const ql = selects[4]?.value || '';
+
+            if (!assetType || !depth || !ql) {
+                showToast('Please fill required fields (Asset Type, Depth, Quality Level)');
+                return;
+            }
+
+            // Get map centre as placement coords
+            const center = map.getCenter();
+            const colorInfo = COLORS[assetType] || COLORS['Unknown'];
+
+            const sizeStr = (pipeSize ? pipeSize + 'mm' : '') + (material ? ' ' + material : '');
+            const feature = {
+                type: assetType,
+                abbr: colorInfo.abbr,
+                coords: [center.lng, center.lat],
+                depth: depth + 'm',
+                ql: ql.split(' ')[0],
+                size: sizeStr.trim(),
+                color: colorInfo.color
+            };
+
+            // Place marker on map
+            addMarkerToMap(feature);
+
+            // Update count
+            featureCount++;
+            updateFeatureCount();
+
+            // Add to features list
+            addFeatureToList(feature);
+
+            // Close panel
+            closePanel('panel-capture');
+            showToast(`${assetType} feature saved at ${depth}m depth`);
+
+            // Reset form
+            selects.forEach(s => s.selectedIndex = 0);
+            inputs.forEach(i => i.value = '');
+            panel.querySelector('textarea').value = '';
+
+            // Broadcast for admin sync
+            if (window.BroadcastChannel) {
+                const ch = new BroadcastChannel('locatepro-sync');
+                ch.postMessage({ type: 'new-feature', data: feature });
+            }
+        });
+
+        function updateFeatureCount() {
+            document.getElementById('feature-count-badge').textContent = featureCount + ' features';
+            // Sync to projects array
+            const project = projects.find(p => p.id === activeProjectId);
+            if (project) project.features = featureCount;
+        }
+
+        function addFeatureToList(f) {
+            // Add to project-specific features array
+            if (!projectFeatures[activeProjectId]) projectFeatures[activeProjectId] = [];
+            projectFeatures[activeProjectId].unshift(f);
+            renderFeatures();
+        }
+
+        function renderFeatures() {
+            const list = document.getElementById('features-list');
+            const features = projectFeatures[activeProjectId] || [];
+            document.getElementById('features-panel-count').textContent = features.length + ' captured';
+
+            if (features.length === 0) {
+                list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--zinc-400);font-size:13px;">No features captured yet.<br>Tap "Add Feature" on the map to start.</div>';
+                return;
+            }
+
+            list.innerHTML = features.map(f => `
+                <div class="feature-item">
+                    <div class="fi-dot" style="background:${f.color}"></div>
+                    <div class="fi-info">
+                        <div class="fi-name">${f.type}</div>
+                        <div class="fi-detail">${f.size ? f.size + ' • ' : ''}${f.depth} depth</div>
+                    </div>
+                    <span class="fi-ql">${f.ql}</span>
+                </div>
+            `).join('');
+        }
+
+        // Initial render
+        renderFeatures();
+
+        // ============================================================
+        // GEOFENCE DRAWING
+        // ============================================================
+        document.getElementById('btn-draw-sow').addEventListener('click', () => {
+            startDrawing();
+        });
+
+        function startDrawing() {
+            drawingMode = true;
+            drawPoints = [];
+            drawMarkers = [];
+            document.getElementById('screen-map').classList.add('drawing-mode');
+            document.getElementById('drawing-banner').classList.add('visible');
+            document.getElementById('fab-buttons').style.display = 'none';
+            document.querySelectorAll('.right-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('crosshair')?.classList.remove('visible');
+            updateDrawCount();
+
+            // Remove seed geofence to make room for user drawing
+            if (map.getLayer('geofence-fill')) {
+                map.setLayoutProperty('geofence-fill', 'visibility', 'none');
+                map.setLayoutProperty('geofence-line', 'visibility', 'none');
+            }
+        }
+
+        function updateDrawCount() {
+            document.getElementById('db-point-count').textContent = drawPoints.length + ' point' + (drawPoints.length !== 1 ? 's' : '');
+        }
+
+        // Click on map to add geofence point
+        map.on('click', (e) => {
+            if (!drawingMode) return;
+
+            const lngLat = [e.lngLat.lng, e.lngLat.lat];
+            drawPoints.push(lngLat);
+
+            // Add small vertex marker
+            const el = document.createElement('div');
+            el.style.cssText = 'width:12px;height:12px;background:#DC2626;border:2px solid white;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3);cursor:pointer;';
+            const marker = new maplibregl.Marker({ element: el }).setLngLat(lngLat).addTo(map);
+            drawMarkers.push(marker);
+
+            // Update preview line
+            updateDrawPreview();
+            updateDrawCount();
+        });
+
+        function updateDrawPreview() {
+            if (drawPoints.length < 2) {
+                map.getSource('draw-line')?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
+                return;
+            }
+            // Show the line connecting all points (plus closing back to first)
+            const previewCoords = [...drawPoints, drawPoints[0]];
+            map.getSource('draw-line')?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: previewCoords } });
+        }
+
+        function undoDrawPoint() {
+            if (drawPoints.length === 0) return;
+            drawPoints.pop();
+            const m = drawMarkers.pop();
+            if (m) m.remove();
+            updateDrawPreview();
+            updateDrawCount();
+        }
+
+        function finishDrawing() {
+            if (drawPoints.length < 3) {
+                showToast('Need at least 3 points to create a boundary');
+                return;
+            }
+
+            // Close the polygon
+            const closed = [...drawPoints, drawPoints[0]];
+
+            // Update the user geofence source
+            map.getSource('user-geofence')?.setData({
+                type: 'Feature',
+                geometry: { type: 'Polygon', coordinates: [closed] }
+            });
+
+            // Clean up
+            endDrawing();
+            showToast('Scope of works boundary saved');
+        }
+
+        function cancelDrawing() {
+            endDrawing();
+            // Restore seed geofence
+            if (map.getLayer('geofence-fill')) {
+                map.setLayoutProperty('geofence-fill', 'visibility', 'visible');
+                map.setLayoutProperty('geofence-line', 'visibility', 'visible');
+            }
+        }
+
+        function endDrawing() {
+            drawingMode = false;
+            document.getElementById('screen-map').classList.remove('drawing-mode');
+            document.getElementById('drawing-banner').classList.remove('visible');
+            document.getElementById('fab-buttons').style.display = 'flex';
+
+            // Remove vertex markers
+            drawMarkers.forEach(m => m.remove());
+            drawMarkers = [];
+
+            // Clear preview line
+            map.getSource('draw-line')?.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [] } });
+        }
+
+        // ============================================================
+        // ANNOTATIONS
+        // ============================================================
+        function placeAnnotation(text) {
+            if (!text || !text.trim()) return;
+            closePanel('panel-annotate');
+
+            const center = map.getCenter();
+            const el = document.createElement('div');
+            el.style.cssText = `
+                background: white;
+                border: 1px solid #e4e4e7;
+                border-radius: 6px;
+                padding: 5px 10px;
+                font-family: 'Inter', sans-serif;
+                font-size: 11px;
+                font-weight: 600;
+                color: #DC2626;
+                max-width: 200px;
+                line-height: 1.3;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+                cursor: grab;
+            `;
+            el.textContent = text.trim();
+
+            new maplibregl.Marker({ element: el, draggable: true })
+                .setLngLat([center.lng, center.lat])
+                .addTo(map);
+
+            annotationCount++;
+            showToast('Annotation placed — drag to reposition');
+
+            // Clear custom note field
+            document.getElementById('custom-note').value = '';
+        }
+
+        // ============================================================
+        // MAP TOOLS
+        // ============================================================
+        document.getElementById('tool-geofence').addEventListener('click', function() {
+            if (drawingMode) return;
+            if (map.getLayer('geofence-fill')) {
+                const current = map.getLayoutProperty('geofence-fill', 'visibility') || 'visible';
+                const next = current === 'visible' ? 'none' : 'visible';
+                map.setLayoutProperty('geofence-fill', 'visibility', next);
+                map.setLayoutProperty('geofence-line', 'visibility', next);
+                this.classList.toggle('active', next === 'none');
+            }
+        });
+
+        document.getElementById('tool-locate').addEventListener('click', () => {
+            map.flyTo({ center: CENTER, zoom: 18 });
+        });
+
+        // History toggle
+        document.getElementById('tool-history').addEventListener('click', function() {
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                historyFeatures.forEach(f => {
+                    const el = document.createElement('div');
+                    el.className = 'u-marker';
+                    el.style.backgroundColor = f.color;
+                    el.style.opacity = '0.4';
+                    el.style.border = '2px dashed white';
+                    el.textContent = f.abbr;
+                    const popup = new maplibregl.Popup({ offset: 16, closeButton: false }).setHTML(
+                        `<div class="popup-type" style="color:var(--zinc-500)">HISTORICAL — ${f.type}</div><div class="popup-info">Depth: ${f.depth}<br>From previous project</div><div class="popup-ql">${f.ql}</div>`
+                    );
+                    const marker = new maplibregl.Marker({ element: el }).setLngLat(f.coords).setPopup(popup).addTo(map);
+                    historyMarkers.push(marker);
+                });
+                showToast('Showing historical data from previous projects');
+            } else {
+                historyMarkers.forEach(m => m.remove());
+                historyMarkers = [];
+            }
+        });
+
+        // ============================================================
+        // PDF CAPTURE MODE
+        // ============================================================
+        let captureMode = false;
+        let capturedPages = [];
+
+        function startCapture() {
+            captureMode = true;
+            capturedPages = [];
+
+            // Close panels, hide UI
+            document.querySelectorAll('.right-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('fab-buttons').style.display = 'none';
+            document.getElementById('map-legend').style.display = 'none';
+            document.getElementById('crosshair')?.classList.remove('visible');
+            document.querySelector('.map-toolbar').style.display = 'none';
+            document.querySelector('.map-gps-badge').style.display = 'none';
+
+            // Show capture UI
+            document.getElementById('capture-overlay').classList.add('visible');
+            document.getElementById('capture-bar').classList.add('visible');
+            document.getElementById('capture-pages').classList.add('visible');
+            document.getElementById('cb-done-btn').style.display = 'none';
+            document.getElementById('captured-pages-list').innerHTML = '';
+
+            // Enable rotation
+            map.dragRotate.enable();
+            map.touchZoomRotate.enableRotation();
+
+            showToast('Rotate & zoom to frame your site within the A4 guideline');
+        }
+
+        function capturePage() {
+            const pageNum = capturedPages.length + 1;
+
+            // Use map's canvas to get a snapshot
+            const canvas = map.getCanvas();
+            let thumbUrl = '';
+            try {
+                thumbUrl = canvas.toDataURL('image/png');
+            } catch (e) {
+                // Canvas tainted by cross-origin tiles — use placeholder
+                thumbUrl = '';
+            }
+
+            capturedPages.push({ num: pageNum, thumbUrl });
+
+            // Add thumbnail to panel
+            const list = document.getElementById('captured-pages-list');
+            const pageEl = document.createElement('div');
+            pageEl.className = 'captured-page';
+
+            if (thumbUrl) {
+                pageEl.innerHTML = `<img src="${thumbUrl}" alt="Page ${pageNum}"><div class="cp-label">Map Page ${pageNum}</div>`;
+            } else {
+                pageEl.innerHTML = `<div class="captured-page-placeholder">Map Page ${pageNum} captured</div>`;
+            }
+            list.appendChild(pageEl);
+
+            // Show done button after first capture
+            document.getElementById('cb-done-btn').style.display = 'flex';
+
+            showToast(`Page ${pageNum} captured — pan to capture another or tap Done`);
+        }
+
+        function finishCapture() {
+            if (capturedPages.length === 0) {
+                showToast('Capture at least one page first');
+                return;
+            }
+            exitCaptureMode();
+            showToast(`PDF report generated with ${capturedPages.length} map page${capturedPages.length > 1 ? 's' : ''} — ready to send`);
+        }
+
+        function cancelCapture() {
+            exitCaptureMode();
+        }
+
+        function exitCaptureMode() {
+            captureMode = false;
+
+            // Hide capture UI
+            document.getElementById('capture-overlay').classList.remove('visible');
+            document.getElementById('capture-bar').classList.remove('visible');
+            document.getElementById('capture-pages').classList.remove('visible');
+
+            // Restore normal UI
+            document.getElementById('fab-buttons').style.display = 'flex';
+            document.getElementById('map-legend').style.display = '';
+            document.querySelector('.map-toolbar').style.display = '';
+            document.querySelector('.map-gps-badge').style.display = '';
+
+            // Disable rotation again
+            map.dragRotate.disable();
+            map.touchZoomRotate.disableRotation();
+
+            // Reset bearing to north
+            map.rotateTo(0, { duration: 500 });
+        }
+
+        // ============================================================
+        // PROJECT CREATION WITH GEOCODING
+        // ============================================================
+        async function createProject() {
+            const modal = document.getElementById('modal-new-project');
+            const inputs = modal.querySelectorAll('input');
+            const address = inputs[0]?.value?.trim();
+            const client = inputs[1]?.value?.trim() || 'Client';
+            const contact = inputs[2]?.value?.trim() || '';
+
+            if (!address) {
+                showToast('Please enter a site address');
+                return;
+            }
+
+            // Create project object
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+            const newProject = {
+                id: projects.length,
+                address: address,
+                client: client,
+                locator: 'You',
+                date: dateStr,
+                features: 0,
+                status: 'in-progress',
+                coords: null
+            };
+
+            closeModal();
+
+            // Set as active and switch to map
+            activeProjectId = newProject.id;
+            featureCount = 0;
+            updateFeatureCount();
+
+            // Update top bar
+            document.querySelector('.top-bar-project h1').textContent = address;
+            document.querySelector('.top-bar-project .project-client').textContent = `${client} • You`;
+
+            showScreen('screen-map');
+            showToast('Locating address...');
+
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=au&limit=1`,
+                    { headers: { 'User-Agent': 'LocatePro-Prototype' } }
+                );
+                const results = await response.json();
+
+                if (results && results.length > 0) {
+                    const lat = parseFloat(results[0].lat);
+                    const lon = parseFloat(results[0].lon);
+                    newProject.coords = [lon, lat];
+                    map.flyTo({ center: [lon, lat], zoom: 18, duration: 2000 });
+                    setTimeout(() => showToast('Project created — draw your scope of works'), 2200);
+                } else {
+                    showToast('Address not found — position map manually');
+                }
+            } catch (e) {
+                console.warn('Geocoding failed:', e);
+                showToast('Project created — position map manually');
+            }
+
+            // Add to array and re-render
+            projects.unshift(newProject);
+            projectFeatures[newProject.id] = [];
+            renderProjects();
+            renderFeatures();
+
+            // Reset modal form
+            inputs.forEach(i => i.value = '');
+            modal.querySelectorAll('textarea').forEach(t => t.value = '');
+        }
+
+        // Init
+        if (document.getElementById('screen-projects').classList.contains('active')) {
+            document.getElementById('top-bar').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
